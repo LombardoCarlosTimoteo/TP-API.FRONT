@@ -10,7 +10,7 @@ function ReclamoComun() {
   const [datosCorrectos, setdatosCorrectos] = useState(false);
   const [imagenesSeleccionadas, setimagenesSeleccionadas] = useState([]);
   const { userData, setUserData } = useContext(MyContext)
-  
+
   const handleOtroReclamo = (event) => {
     setdatosCorrectos(false);
     setDireccionEdificio("")
@@ -18,30 +18,20 @@ function ReclamoComun() {
     setDescripcion("")
     setimagenesSeleccionadas([])
   }
+
   const handleFileChange = (event) => {
     const archivos = event.target.files;
     const imagenes = [];
     for (let i = 0; i < archivos.length; i++) {
       imagenes.push(URL.createObjectURL(archivos[i]));
-      console.log("va")
-      console.log(archivos[i])
-
     }
     setimagenesSeleccionadas(imagenes);
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-
-    //cuando se seleccionan varios solamente queda guardado el ultimo seleccionado.
-    console.log("Comun")
-    console.log(direccionEdificio)
-    console.log(lugarComun)
-    console.log(descripcion)
-    console.log(imagenesSeleccionadas)
     if (userData.nombre_usuario === "") alert("Debes iniciar sesión")
     else setdatosCorrectos(true);
-
   }
 
   const handledireccionEdificio = (event) => {
@@ -68,6 +58,7 @@ function ReclamoComun() {
 
         <form class="mx-auto" onSubmit={handleSubmit}>
           <h1>Formulario reclamo común</h1>
+
           <p></p>
 
           <div class="form-group row">
@@ -77,9 +68,9 @@ function ReclamoComun() {
                 onChange={handledireccionEdificio}
                 value={direccionEdificio} />
             </div>
-            <p></p>
-
           </div>
+          
+          <p></p>
 
           <div class="form-group row">
             <label class="col-sm-2 col-form-label">Lugar común</label>
@@ -96,10 +87,7 @@ function ReclamoComun() {
             </div>
           </div>
 
-
           <p></p>
-
-
 
           <div class="form-group row">
             <label for="descripcionReclamo" class="col-sm-2 col-form-label">Descripción</label>
@@ -108,10 +96,10 @@ function ReclamoComun() {
                 onChange={handleDescripcion}
                 maxLength="200"
                 value={descripcion}></textarea>
-              <p></p>
-
             </div>
           </div>
+          
+          <p></p> 
 
           <div class="form-group row">
             <label for="adjuntarImagenes" class="col-sm-2 col-form-label">Imágenes</label>
@@ -123,13 +111,12 @@ function ReclamoComun() {
                   {imagenesSeleccionadas.map((imagen, index) => (
                     <img key={index} src={imagen} alt={`Imagen ${index}`} width="100" />
                   ))}
-                  
                 </div>
-                <p></p>
-
               </div>
             </div>
           </div>
+        
+          <p></p>
 
           <div class="form-group row">
             <div class="col-sm-2"></div>
@@ -140,8 +127,6 @@ function ReclamoComun() {
         </form>
       )}
     </div>
-
-
   );
 }
 

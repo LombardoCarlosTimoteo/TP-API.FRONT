@@ -5,61 +5,40 @@ form {
   vertical-align: middle;
   width: 60%;
   margin: 20px;
-  ;
-  /* Centra horizontalmente el formulario en el centro de la página */
   background-color: #f4f4f4;
-  /* Un color de fondo más claro */
   padding: 20px;
-  /* Reduce el relleno para un aspecto más limpio */
   border: 20px solid #ddd;
-  /* Agrega un borde ligero */
   border-radius: 50px;
-  /* Añade bordes redondeados */
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  /* Agrega una sombra suave */
   margin-left: 20%;
 
 }
 
-/* Estilo para etiquetas y campos de entrada */
 label,
 input,
 textarea {
   display: block;
 }
 
-/* Estilo para el botón */
 button {
   background-color: #007BFF;
-  /* Color de fondo azul */
   color: #fff;
-  /* Texto en color blanco */
   border: none;
-  /* Sin borde */
   border-radius: 50px;
   padding: 10px 20px;
-  /* Relleno del botón */
   cursor: pointer;
   transition: background-color 0.3s;
-  /* Transición suave de color de fondo */
 }
 
 button:hover {
   background-color: #0056b3;
-  /* Cambia de color al pasar el mouse */
 }
 
 h1 {
   text-align: center;
-  /* Centra horizontalmente el texto */
   font-size: 30px;
-  /* Tamaño de fuente */
   background-color: #f4f4f4;
-  /* Color de fondo del h1 */
   color: #000000;
-  /* Color del texto */
   padding: 20px;
-  /* Relleno */
   border-radius: 10px;
-  /* Bordes redondeados */
 }

@@ -11,27 +11,26 @@ function Home() {
     const { userData } = useContext(MyContext)
     return (
         <div>
-            {userData.nombre_usuario === "" ? (
+            {userData.nombre_usuario === "" ? ( //si no está logueado muestra esto:
                 <div className="header">
-                <h1>Bienvenido, inicie sesión o regístrese.
-                    
-                </h1>
-                <p></p>
+                    <h1>Bienvenido, inicie sesión o regístrese.</h1>
 
-                <Link to="/login">
-        <button className="session-button">Iniciar Sesión</button>
-      </Link>
+                    <p></p>
 
-                <p></p>
-                <Link to="/signUp">
-                <button className="session-button">Registrarse</button>
-      </Link>
+                    <Link to="/login">
+                        <button className="session-button">Iniciar Sesión</button>
+                    </Link>
 
-                    </div>
+                    <p></p>
+
+                    <Link to="/signUp">
+                        <button className="session-button">Registrarse</button>
+                    </Link>
+                </div>
             ) : (
+                //Si esta logueado muestra esto
                 <h1>Bienvenido {userData.nombre_usuario}</h1>
             )}
-
         </div>
     );
 }

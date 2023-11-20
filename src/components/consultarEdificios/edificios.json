@@ -1,0 +1,18 @@
+[
+    {
+      "direccion": "hola 1",
+      "cantidadPisos": "1",
+      "deptosPorPiso": "3"
+    },
+    {
+      "direccion": "chau 2",
+      "cantidadPisos": "2",
+      "deptosPorPiso": "4"
+    },
+    {
+      "direccion": "como 5",
+      "cantidadPisos": "5",
+      "deptosPorPiso": "5"
+    }
+  ]
+  

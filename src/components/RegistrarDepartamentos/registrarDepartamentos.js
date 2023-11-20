@@ -1,41 +1,32 @@
 import React, { useState } from "react";
-import './formReclamoParticular.css';
+import './registrarDepartamentos.css';
 import { useContext } from "react";
 import MyContext from "../ReactContext/myContext";
 
-function ReclamoParticular() {
-    const [descripcion, setDescripcion] = useState("")
+function RegistrarDepartamentos() {
     const [piso, setPiso] = useState("")
     const [departamento, setDepartamento] = useState("")
     const [direccionEdificio, setDireccionEdificio] = useState('')
+    const [dniDueño, setdniDueño] = useState('')
+    const [dniInquilino, setdniInquilino] = useState('')
+    const [estaAlquilado, setestaAlquilado] = useState('')
     const [datosCorrectos, setdatosCorrectos] = useState(false);
-    const [imagenesSeleccionadas, setimagenesSeleccionadas] = useState([]);
     const { userData, setUserData } = useContext(MyContext)
 
-    const handleOtroReclamo = (event) => {
+    const handleOtroDepartamento = (event) => {
         setdatosCorrectos(false);
-        setDescripcion("")
         setPiso("")
         setDepartamento("")
         setDireccionEdificio("")
-        setimagenesSeleccionadas([])
+        setdniDueño("")
+        setestaAlquilado("")
     }
-
-    const handleFileChange = (event) => {
-        const archivos = event.target.files;
-        const imagenes = [];
-        for (let i = 0; i < archivos.length; i++) {
-            imagenes.push(URL.createObjectURL(archivos[i]));
-            console.log("va")
-            console.log(archivos[i])
-        }
-        setimagenesSeleccionadas(imagenes);
-    };
 
     const handleSubmit = (event) => {
         event.preventDefault();
         if (userData.nombre_usuario === "") alert("No has iniciado sesión")
-        else setdatosCorrectos(true);
+        else if (userData.tipoUsuario === "admin") setdatosCorrectos(true);
+        else alert("No tienes permisos de administrador")
     }
 
     const handledireccionEdificio = (event) => {
@@ -45,13 +36,20 @@ function ReclamoParticular() {
     const handlePiso = (event) => {
         setPiso(event.target.value)
     }
-
     const handleDepartamento = (event) => {
         setDepartamento(event.target.value)
     }
 
-    const handleDescripcion = (event) => {
-        setDescripcion(event.target.value)
+    const handledniDueño = (event) => {
+        setdniDueño(event.target.value)
+    }
+
+    const handledniInquilino = (event) => {
+        setdniInquilino(event.target.value)
+    }
+
+    const handleestaAlquilado = (event) => {
+        setestaAlquilado(event.target.value)
     }
 
     return (
@@ -59,14 +57,14 @@ function ReclamoParticular() {
             {datosCorrectos ? (
                 <div className="header">
 
-                    <h1>Reclamo particular enviado. Se debe mostrar el numero de reclamo para despues poder buscarlo</h1>
+                    <h1>Departamento registrado</h1>
 
-                    <button onClick={handleOtroReclamo} className="session-button">Realizar otro reclamo particular</button>
+                    <button onClick={handleOtroDepartamento} className="session-button">Registrar otro departamento</button>
                 </div>) :
                 (
                     <form class="mx-auto" onSubmit={handleSubmit}>
-                        <h1>Formulario reclamo particular</h1>
-
+                        <h1>Formulario registrar departamento</h1>
+                        
                         <p></p>
 
                         <div class="form-group row">
@@ -83,7 +81,7 @@ function ReclamoParticular() {
                         <div class="form-group row">
                             <label for="Piso" class="col-sm-2 col-form-label">Piso</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="Piso" aria-describedby="Piso" placeholder="Ingrese el piso del edificio"
+                                <input type="text" class="form-control" id="Piso" aria-describedby="Piso" placeholder="Ingrese el núero piso"
                                     onChange={handlePiso}
                                     value={piso} />
                             </div>
@@ -94,53 +92,64 @@ function ReclamoParticular() {
                         <div class="form-group row">
                             <label for="Departamento" class="col-sm-2 col-form-label">Departamento</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="Departamento" aria-describedby="Departamento" placeholder="Ingrese el departamento"
+                                <input type="text" class="form-control" id="Departamento" aria-describedby="Departamento" placeholder="Ingrese el nombre de la unidad"
                                     onChange={handleDepartamento}
                                     value={departamento} />
                             </div>
                         </div>
-
+                        
                         <p></p>
-
+                        
                         <div class="form-group row">
-                            <label for="descripcionReclamo" class="col-sm-2 col-form-label">Descripción</label>
+                            <label for="Departamento" class="col-sm-2 col-form-label">DNI dueño</label>
                             <div class="col-sm-10">
-                                <textarea class="form-control" id="descripcionReclamo" rows="3" placeholder="Ingrese la descripción del reclamo aquí"
-                                    onChange={handleDescripcion}
-                                    maxLength="200"
-                                    value={descripcion}></textarea>
+                                <input type="text" class="form-control" id="Departamento" aria-describedby="Departamento" placeholder="Ingrese el nombre de la unidad"
+                                    onChange={handledniDueño}
+                                    value={dniDueño} />
                             </div>
                         </div>
 
                         <p></p>
 
                         <div class="form-group row">
-                            <label for="adjuntarImagenes" class="col-sm-2 col-form-label">Imágenes</label>
+                            <label class="col-sm-2 col-form-label">¿Está alquilado?</label>
                             <div class="col-sm-10">
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="adjuntarImagenes" lang="es" multiple onChange={handleFileChange} />
-                                    <p></p>
-                                    <div>
-                                        {imagenesSeleccionadas.map((imagen, index) => (
-                                            <img key={index} src={imagen} alt={`Imagen ${index}`} width="100" />
-                                        ))}
-                                    </div>
+                                <div class="custom-select">
+                                    <select class="form-control" id="lugarComun" name="lugarComun" onChange={handleestaAlquilado}>
+                                        <option value="" disabled selected>Seleccione el estado de la unidad</option>
+                                        <option value="SI">SI</option>
+                                        <option value="NO">NO</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
+                        
+                        <p></p>
 
+                        {(estaAlquilado === "SI") && (
+                            <div class="form-group row">
+                                <label for="Departamento" class="col-sm-2 col-form-label">DNI inquilino</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="Departamento" aria-describedby="Departamento" placeholder="Ingrese el nombre de la unidad"
+                                        onChange={handledniInquilino}
+                                        value={dniInquilino} />
+                                </div>
+                            </div>
+                        )}
+                        
                         <p></p>
 
                         <div class="form-group row">
                             <div class="col-sm-2"></div>
                             <div class="col-sm-10">
-                                <button type="submit" >Realizar reclamo particular</button>
+                                <button type="submit" class="">Registrar edificio</button>
                             </div>
                         </div>
                     </form>
-                )}
-        </div>
+                )
+            }
+        </div >
     );
 }
 
-export default ReclamoParticular;
+export default RegistrarDepartamentos;

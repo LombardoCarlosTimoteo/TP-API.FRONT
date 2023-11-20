@@ -1,3 +1,7 @@
+
+
+//ARCHIVO EN DESUSO
+
 import React, { useState } from "react";
 import './consultarReclamos.css';
 import { useContext } from "react";

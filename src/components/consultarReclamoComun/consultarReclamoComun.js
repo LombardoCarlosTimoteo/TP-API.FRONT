@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import './consultarReclamoComun.css';
 import { useContext } from "react";
 import MyContext from "../ReactContext/myContext";
+import { useEffect } from 'react';
+
 function ConsultarReclamoComun() {
     const [descripcion, setDescripcion] = useState("")
     const [datosCorrectos, setdatosCorrectos] = useState(false);
@@ -13,29 +15,107 @@ function ConsultarReclamoComun() {
     const [filtrarPorEstadoChange, setfiltrarPorEstadoChange] = useState("")
     const [razonDeCambioDeEstado, setrazonDeCambioDeEstado] = useState("")
 
+    //si sos admin, agarrar todos
+    //si es inquilo o dueño, agarrar los de su edificio
+
+
+
+        useEffect(() => {
+            var URL = "http://localhost:8080/api/reclamosComunes"
+            var token = `Bearer ${userData.token}`// + userData.token
+            console.log(token)
+            fetch(URL, {
+
+                headers: new Headers({
+                    'Authorization': token,
+                }),
+                method: "GET"
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("No se pudo hacer el GET")
+                    }
+                    return response.json()
+                })
+                .then(response => {
+                    JSON.stringify(response)
+                    console.log(response)
+                })
+                .catch(error => console.log("Error: ", error))
+        })
+    
+
+        useEffect(() => {
+            if(userData.tipoUsuario === "admin"){ //si es admin, agarrar todos los reclamos comunes
+                var URL = "http://localhost:8080/api/reclamosComunes"
+                var token = `Bearer ${userData.token}`// + userData.token
+                console.log(token)
+                fetch(URL, {
+                    headers: new Headers({
+                        'Authorization': token,
+                    }),
+                    method: "GET"
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("No se pudo hacer el GET")
+                        }
+                        return response.json()
+                    })
+                    .then(response => {
+                        JSON.stringify(response)
+                        console.log(response)
+                    })
+                    .catch(error => console.log("Error: ", error))
+            }
+            
+            
+            else if(userData.tipoUsuario === "inquilino" || userData.tipoUsuario === "dueño"){ //si es inquilino o dueño, agarrar los reclamos de su edificio que se encuentra en el context
+                var URL = "http://localhost:8080/api/reclamosComunes"
+                var token = `Bearer ${userData.token}`// + userData.token
+                console.log(token)
+                fetch(URL, {
+
+                    headers: new Headers({
+                        'Authorization': token,
+                    }),
+                    method: "GET"
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("No se pudo hacer el GET")
+                        }
+                        return response.json()
+                    })
+                    .then(response => {
+                        JSON.stringify(response)
+                        console.log(response)
+                    })
+                    .catch(error => console.log("Error: ", error))
+            }
+
+            
+            
+        })
+    
+
     const handleFileChange = (event) => {
         const archivos = event.target.files;
         const imagenes = [];
         for (let i = 0; i < archivos.length; i++) {
             imagenes.push(URL.createObjectURL(archivos[i]));
-            console.log("va")
-            console.log(archivos[i])
         }
         setimagenes(imagenes);
     };
 
     const handleSubmit = (event) => {
         event.preventDefault();
-
-        console.log("Particular")
-        console.log(descripcion)
-        console.log(imagenes)
         if (userData.nombre_usuario === "") alert("No has iniciado sesión")
         else {
             //chequear que el usuario sea admin. si es admin, hacer el setdatoscorrectos
             setdatosCorrectos(true);
         }
-        if(nuevoEstadoReclamo!==""){
+        if (nuevoEstadoReclamo !== "") {
             setestadoReclamo(nuevoEstadoReclamo)
             alert("Cambios reazados con exito")
         }
@@ -58,14 +138,12 @@ function ConsultarReclamoComun() {
 
     return (
         <div>
-
             {userData.tipoUsuario === "" && (
                 <h1>Inicia sesión para consultar reclamos.</h1>
 
             )}
             {userData.tipoUsuario === "admin" && (
                 <div>
-
                     <form class="mx-auto" onSubmit={handleSubmit}>
                         <h1>Consultar reclamo común siendo admin</h1>
                         <p></p>
@@ -94,7 +172,9 @@ function ConsultarReclamoComun() {
                                 />
                             </div>
                         </div>
+
                         <p></p>
+
                         <div class="form-group row">
                             <label for="nombre_usuario" class="col-sm-2 col-form-label">Lugar común</label>
                             <div class="col-sm-10">
@@ -103,8 +183,8 @@ function ConsultarReclamoComun() {
                                 />
                             </div>
                         </div>
-                        <p></p>
 
+                        <p></p>
 
                         <div class="form-group row">
                             <label for="descripcionReclamo" class="col-sm-2 col-form-label">Descripción</label>
@@ -113,10 +193,11 @@ function ConsultarReclamoComun() {
                                     maxLength="200"
                                     readOnly
                                     value={descripcion}></textarea>
-                                <p></p>
 
                             </div>
                         </div>
+
+                        <p></p>
 
                         <div class="form-group row">
                             <label for="adjuntarImagenes" class="col-sm-2 col-form-label">Imágenes</label>
@@ -128,11 +209,11 @@ function ConsultarReclamoComun() {
                                             <img key={index} src={imagen} alt={`Imagen ${index}`} width="100" />
                                         ))}
                                     </div>
-                                    <p></p>
-
                                 </div>
                             </div>
                         </div>
+
+                        <p></p>
 
                         <div class="form-group row">
                             <label class="col-sm-2 col-form-label">Nuevo estado</label>
@@ -149,40 +230,38 @@ function ConsultarReclamoComun() {
                                     </select>
                                 </div>
                             </div>
-                            <p></p>
-
                         </div>
+
+                        <p></p>
+
                         <div class="form-group row">
                             <label for="descripcionReclamo" class="col-sm-2 col-form-label">Razón de cambio</label>
                             <div class="col-sm-10">
                                 <textarea class="form-control" id="razonDeCambioDeEstado" rows="3"
                                     value={razonDeCambioDeEstado}
                                     onChange={handlerazonDeCambioDeEstado}
-           
-                                    ></textarea>
-                                <p></p>
-
+                                ></textarea>
                             </div>
                         </div>
-                        <div class="form-group row">
-            <div class="col-sm-2"></div>
-            <div class="col-sm-10">
-              <button type="submit" >Realizar cambio de estado</button>
-            </div>
-          </div>
-                    </form>
 
+                        <p></p>
+
+                        <div class="form-group row">
+                            <div class="col-sm-2"></div>
+                            <div class="col-sm-10">
+                                <button type="submit" >Realizar cambio de estado</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             )}
-
-            {(userData.tipoUsuario === "inquilino" ||userData.tipoUsuario === "dueño" ) && (
+            {(userData.tipoUsuario === "inquilino" || userData.tipoUsuario === "dueño") && (
                 <div>
 
-                <form class="mx-auto" onSubmit={handleSubmit}>
-                    <h1>Consultar reclamo siendo iniqulino o dueño</h1>
-                    <p></p>
-
-                    <div class="form-group row">
+                    <form class="mx-auto" onSubmit={handleSubmit}>
+                        <h1>Consultar reclamo siendo iniqulino o dueño</h1>
+                        <p></p>
+                        <div class="form-group row">
                             <label class="col-sm-2 col-form-label">Filtrar por estado</label>
                             <div class="col-sm-10">
                                 <div class="custom-select">
@@ -197,87 +276,81 @@ function ConsultarReclamoComun() {
                                     </select>
                                 </div>
                             </div>
-                            <p></p>
-
                         </div>
 
-                    <div class="form-group row">
-                        <label class="col-sm-2 col-form-label">Reclamos</label>
-                        <div class="col-sm-10">
-                            <div class="custom-select">
-                                <select class="form-control" id="lugarComun" name="lugarComun" onChange={handleReclamoChange}>
-                                    <option value="" disabled selected>Seleccione un reclamo</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
+                        <p></p>
 
-                    <p></p>
-
-                    <div class="form-group row">
-                        <label for="nombre_usuario" class="col-sm-2 col-form-label">Estado</label>
-                        <div class="col-sm-10">
-                            <input
-                                type="text" class="form-control" id="lugarComun" aria-describedby="lugarComun" placeholder="" value={estadoReclamo} readonly
-                            />
-                        </div>
-                    </div>
-                    <p></p>
-                    <div class="form-group row">
-                        <label for="nombre_usuario" class="col-sm-2 col-form-label">Lugar común</label>
-                        <div class="col-sm-10">
-                            <input
-                                type="text" class="form-control" id="lugarComun" aria-describedby="lugarComun" placeholder="" value={lugarComun} readonly
-                            />
-                        </div>
-                    </div>
-                    <p></p>
-
-
-                    <div class="form-group row">
-                        <label for="descripcionReclamo" class="col-sm-2 col-form-label">Descripción</label>
-                        <div class="col-sm-10">
-                            <textarea class="form-control" id="descripcionReclamo" rows="3"
-                                maxLength="200"
-                                readOnly
-                                value={descripcion}></textarea>
-                            <p></p>
-
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <label for="adjuntarImagenes" class="col-sm-2 col-form-label">Imágenes</label>
-                        <div class="col-sm-10">
-                            <div class="custom-file">
-                                <p></p>
-                                <div>
-                                    {imagenes.map((imagen, index) => (
-                                        <img key={index} src={imagen} alt={`Imagen ${index}`} width="100" />
-                                    ))}
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Reclamos</label>
+                            <div class="col-sm-10">
+                                <div class="custom-select">
+                                    <select class="form-control" id="lugarComun" name="lugarComun" onChange={handleReclamoChange}>
+                                        <option value="" disabled selected>Seleccione un reclamo</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                    </select>
                                 </div>
-                                <p></p>
-
                             </div>
                         </div>
-                    </div>
-                </form>
 
-            </div>
+                        <p></p>
+
+                        <div class="form-group row">
+                            <label for="nombre_usuario" class="col-sm-2 col-form-label">Estado</label>
+                            <div class="col-sm-10">
+                                <input
+                                    type="text" class="form-control" id="lugarComun" aria-describedby="lugarComun" placeholder="" value={estadoReclamo} readonly
+                                />
+                            </div>
+                        </div>
+
+                        <p></p>
+
+                        <div class="form-group row">
+                            <label for="nombre_usuario" class="col-sm-2 col-form-label">Lugar común</label>
+                            <div class="col-sm-10">
+                                <input
+                                    type="text" class="form-control" id="lugarComun" aria-describedby="lugarComun" placeholder="" value={lugarComun} readonly
+                                />
+                            </div>
+                        </div>
+
+                        <p></p>
+
+                        <div class="form-group row">
+                            <label for="descripcionReclamo" class="col-sm-2 col-form-label">Descripción</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" id="descripcionReclamo" rows="3"
+                                    maxLength="200"
+                                    readOnly
+                                    value={descripcion}></textarea>
+                            </div>
+                        </div>
+                        
+                        <p></p>
+
+                        <div class="form-group row">
+                            <label for="adjuntarImagenes" class="col-sm-2 col-form-label">Imágenes</label>
+                            <div class="col-sm-10">
+                                <div class="custom-file">
+                                    <p></p>
+                                    <div>
+                                        {imagenes.map((imagen, index) => (
+                                            <img key={index} src={imagen} alt={`Imagen ${index}`} width="100" />
+                                        ))}
+                                    <p></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
             )}
-
-
-
         </div>
     );
-
-
-
-
 }
 
 export default ConsultarReclamoComun;

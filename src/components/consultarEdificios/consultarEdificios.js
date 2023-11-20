@@ -2,45 +2,61 @@ import React, { useState } from "react";
 import './consultarEdificios.css';
 import { useContext } from "react";
 import MyContext from "../ReactContext/myContext";
-import usuariosData from './Usuarios.json'; 
+import edificiosData from './edificios.json';
 import { useEffect } from 'react';
+
 function ConsultarEdificios() {
     const [edificio, setEdificio] = useState("")
     const [datosCorrectos, setdatosCorrectos] = useState(false);
     const [cantidadPisos, setcantidadPisos] = useState("")
     const [cantidadDepartamentos, setcantidadDepartamentos] = useState("")
     const [direccion, setDireccion] = useState("")
-    
+
     const [nuevacantidadPisos, setnuevacantidadPisos] = useState("")
     const [nuevacantidadDepartamentos, setnuevacantidadDepartamentos] = useState("")
     const [nuevaDireccion, setnuevaDireccion] = useState("");
     const { userData, setUserData } = useContext(MyContext)
-    
+
     const [edificios, setEdificios] = useState([]); //lista de todos los edificios
     const [edificioABuscar, setedificioABuscar] = useState('')
 
     //aca hacer la carga de todos los jsons
     useEffect(() => {
-        var URL = "http://localhost:8080/api/edificios"
-        var token = "Bearer " + userData.token
-        fetch(URL, {
-            //mode: "no-cors",
-            headers:{
-                Authorization: token
-            },
-            method: "GET"
-        })
-        .then(response => {
-            if(!response.ok)
-            {
-                throw new Error("No se pudo hacer el GET")
-            }
-            return response.json()
-        })
-        .then(response => JSON.stringify(response))
-        .catch(error => console.log("Error: ", error))
+        if(userData.tipoUsuario === "admin"){
+            var URL = "http://localhost:8080/api/edificios"
+            var token = `Bearer ${userData.token}`// + userData.token
+            console.log(token)
+            fetch(URL, {
+                //credentials: 'include',
+                //mode: "no-cors",
+                headers: new Headers({
+                    'Authorization': token,
+                    'Content-Type': "application/json",
+                    //'Content-Type': "text/plain",
+                    //'Access-Control-Allow-Origin': '*',
+                    //"Access-Control-Allow-Headers": '*',
+                    //"Access-Control-Allow-Methods": 'GET,PUT,POST,DELETE'
+                }),
+                method: "GET"
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("No se pudo hacer el GET")
+                }
+                return response.json()
+            })
+            .then(response => {
+                JSON.stringify(response)
+                console.log(response)
+            })
+            .catch(error => console.log("Error: ", error))
+        }
+        
     })
-
+    useEffect(() => {
+        setEdificios(edificiosData);
+    }, []);
+    
     const handleSubmit = (event) => {
         event.preventDefault();
 
@@ -48,15 +64,18 @@ function ConsultarEdificios() {
         else {
             //chequear que el usuario sea admin. si es admin, hacer el setdatoscorrectos
             setdatosCorrectos(true);
-            if(nuevaDireccion!==""){
+            if (nuevaDireccion !== "") {
                 setDireccion(nuevaDireccion)
             }
-            if(nuevacantidadDepartamentos!==""){
+            if (nuevacantidadDepartamentos !== "") {
                 setcantidadDepartamentos(nuevacantidadDepartamentos)
             }
-            if(nuevacantidadPisos!==""){
+            if (nuevacantidadPisos !== "") {
                 setcantidadPisos(nuevacantidadPisos)
             }
+            setnuevaDireccion("")
+            setnuevacantidadDepartamentos("")
+            setnuevacantidadPisos("")
         }
 
     }
@@ -66,47 +85,49 @@ function ConsultarEdificios() {
     const handlenuevacantidadDepartamentos = (event) => {
         setnuevacantidadDepartamentos(event.target.value)
     }
-    const handlenuevacantidadPisos= (event) => {
+    const handlenuevacantidadPisos = (event) => {
         setnuevacantidadPisos(event.target.value)
     }
 
     const handleEdificioChange = (event) => {
-        setedificioABuscar(event.target.value)
+        const nombreEdificioABuscar = event.target.value;
+        console.log("nombreEdificioABuscar:", nombreEdificioABuscar);
 
-        for (let i = 0; i < edificios.length; i++) {
-            if (edificios[i].direccion === edificioABuscar) {
-                setedificioABuscar(edificios[i]);
-                setcantidadPisos(edificioABuscar.cantidadPisos)
-                setcantidadDepartamentos(edificioABuscar.cantidadDepartamentos)
-            }
+        const edificioEncontrado = edificios.find(edificio => edificio.direccion === nombreEdificioABuscar);
+
+        if (edificioEncontrado) {
+            setedificioABuscar(nombreEdificioABuscar);
+            setcantidadPisos(edificioEncontrado.cantidadPisos);
+            setcantidadDepartamentos(edificioEncontrado.deptosPorPiso);
+            setDireccion(edificioEncontrado.deptosPorPiso);
         }
     }
 
 
     return (
         <div>
-
             {userData.tipoUsuario === "" && (
                 <h1>Inicia sesión para consultar reclamos.</h1>
 
             )}
             {userData.tipoUsuario === "admin" && (
                 <div>
-
                     <form class="mx-auto" onSubmit={handleSubmit}>
                         <h1>Consultar edificios</h1>
+                        <h1>{userData.token}</h1>
                         <p></p>
                         <div class="form-group row">
                             <label class="col-sm-2 col-form-label">Edificios</label>
                             <div class="col-sm-10">
                                 <div class="custom-select">
                                     <select class="form-control" id="lugarComun" name="lugarComun" onChange={handleEdificioChange}>
-                                    <option value="" disabled selected>Seleccione un usuario</option>
-                                    {edificios.map((edificio, index) => (
-                                        <option key={index} value={edificio.direccion}>
-                                            {edificio.direccion} 
-                                        </option>
-                                    ))}
+                                        <option value="" disabled selected>Seleccione un edificio</option>
+
+                                        {edificios.map((edificio, index) => (
+                                            <option key={index} value={edificio.direccion} onChange={handleEdificioChange}>
+                                                {edificio.direccion}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                             </div>
@@ -122,7 +143,9 @@ function ConsultarEdificios() {
                                 />
                             </div>
                         </div>
+
                         <p></p>
+                        
                         <div class="form-group row">
                             <label for="nombre_usuario" class="col-sm-2 col-form-label">Cant Pisos actual</label>
                             <div class="col-sm-10">
@@ -131,7 +154,9 @@ function ConsultarEdificios() {
                                 />
                             </div>
                         </div>
+
                         <p></p>
+
                         <div class="form-group row">
                             <label for="nombre_usuario" class="col-sm-2 col-form-label">Dtos. x piso actual</label>
                             <div class="col-sm-10">
@@ -140,69 +165,60 @@ function ConsultarEdificios() {
                                 />
                             </div>
                         </div>
-                        <p></p>
 
+                        <p></p>
 
                         <div class="form-group row">
                             <label for="nombre_usuario" class="col-sm-2 col-form-label">Mod dirección</label>
                             <div class="col-sm-10">
                                 <input
                                     type="text" class="form-control" id="estadoReclamo" aria-describedby="estadoReclamo"
-                                    value={nuevaDireccion} 
+                                    value={nuevaDireccion}
                                     onChange={handlenuevaDireccion}
 
-                                    placeholder="Ingrese la dirección del edificio nuevamente para modificar"   />
+                                    placeholder="Ingrese la dirección del edificio nuevamente para modificar" />
                             </div>
                         </div>
-                        <p></p>
-                    
 
+                        <p></p>
 
                         <div class="form-group row">
                             <label for="nombre_usuario" class="col-sm-2 col-form-label">Mod cant. pisos</label>
                             <div class="col-sm-10">
                                 <input
-                                    type="text" class="form-control" id="estadoReclamo" aria-describedby="estadoReclamo" placeholder="Ingrese la camtidad de pisos del edificio nuevamente para modificar"  
-                                    value={nuevacantidadPisos} 
+                                    type="text" class="form-control" id="estadoReclamo" aria-describedby="estadoReclamo" placeholder="Ingrese la camtidad de pisos del edificio nuevamente para modificar"
+                                    value={nuevacantidadPisos}
                                     onChange={handlenuevacantidadPisos}
-                              />
+                                />
                             </div>
                         </div>
 
-
-
                         <p></p>
+
                         <div class="form-group row">
                             <label for="nombre_usuario" class="col-sm-2 col-form-label">Mod Deptos x piso</label>
                             <div class="col-sm-10">
                                 <input
-                                    type="text" class="form-control" id="ewq" aria-describedby="estadoRsdfsfdfeclamo" placeholder="Ingrese la cantidad de dpartamentos por piso del edificio nuevamente para modificar"  
-                                    value={nuevacantidadDepartamentos} 
+                                    type="text" class="form-control" id="ewq" aria-describedby="estadoRsdfsfdfeclamo" placeholder="Ingrese la cantidad de dpartamentos por piso del edificio nuevamente para modificar"
+                                    value={nuevacantidadDepartamentos}
                                     onChange={handlenuevacantidadDepartamentos}
                                 />
                             </div>
                         </div>
+
                         <p></p>
 
                         <div class="form-group row">
-            <div class="col-sm-2"></div>
-            <div class="col-sm-10">
-              <button type="submit" >Realizar cambios </button>
-            </div>
-          </div>
+                            <div class="col-sm-2"></div>
+                            <div class="col-sm-10">
+                                <button type="submit" >Realizar cambios </button>
+                            </div>
+                        </div>
                     </form>
-
                 </div>
             )}
-
-
-
         </div>
     );
-
-
-
-
 }
 
 export default ConsultarEdificios;
