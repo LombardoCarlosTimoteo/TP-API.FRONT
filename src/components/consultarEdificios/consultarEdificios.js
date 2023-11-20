@@ -16,13 +16,30 @@ function ConsultarEdificios() {
     const [nuevaDireccion, setnuevaDireccion] = useState("");
     const { userData, setUserData } = useContext(MyContext)
     
-    const [edificios, setEdificios] = useState([]);
-    const [direccionEdificioABuscar, setdireccionEdificioABuscar] = useState('')
+    const [edificios, setEdificios] = useState([]); //lista de todos los edificios
+    const [edificioABuscar, setedificioABuscar] = useState('')
 
     //aca hacer la carga de todos los jsons
     useEffect(() => {
-        setEdificios(usuariosData);
-    }, []);
+        var URL = "http://localhost:8080/api/edificios"
+        var token = "Bearer " + userData.token
+        fetch(URL, {
+            //mode: "no-cors",
+            headers:{
+                Authorization: token
+            },
+            method: "GET"
+        })
+        .then(response => {
+            if(!response.ok)
+            {
+                throw new Error("No se pudo hacer el GET")
+            }
+            return response.json()
+        })
+        .then(response => JSON.stringify(response))
+        .catch(error => console.log("Error: ", error))
+    })
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -43,8 +60,6 @@ function ConsultarEdificios() {
         }
 
     }
-
-   
     const handlenuevaDireccion = (event) => {
         setnuevaDireccion(event.target.value)
     }
@@ -56,15 +71,17 @@ function ConsultarEdificios() {
     }
 
     const handleEdificioChange = (event) => {
-        setdireccionEdificioABuscar(event.target.value)
+        setedificioABuscar(event.target.value)
 
         for (let i = 0; i < edificios.length; i++) {
-            if (edificios[i].direccion === direccionEdificioABuscar) {
-                setdireccionEdificioABuscar(edificios[i]);
-                
+            if (edificios[i].direccion === edificioABuscar) {
+                setedificioABuscar(edificios[i]);
+                setcantidadPisos(edificioABuscar.cantidadPisos)
+                setcantidadDepartamentos(edificioABuscar.cantidadDepartamentos)
             }
         }
     }
+
 
     return (
         <div>
@@ -84,11 +101,12 @@ function ConsultarEdificios() {
                             <div class="col-sm-10">
                                 <div class="custom-select">
                                     <select class="form-control" id="lugarComun" name="lugarComun" onChange={handleEdificioChange}>
-                                        <option value="" disabled selected>Seleccione un edificio</option>
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                        <option value="4">4</option>
+                                    <option value="" disabled selected>Seleccione un usuario</option>
+                                    {edificios.map((edificio, index) => (
+                                        <option key={index} value={edificio.direccion}>
+                                            {edificio.direccion} 
+                                        </option>
+                                    ))}
                                     </select>
                                 </div>
                             </div>

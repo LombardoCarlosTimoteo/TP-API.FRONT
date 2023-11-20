@@ -51,11 +51,11 @@ function Login() {
             //console.log(JSON.parse(response.json()))
             setdatosCorrectos(true)
             //console.log(response.text())
-            setUserData({nombre_usuario: nombreUsuario,  token: response })
+            setUserData({...userData, nombre_usuario: nombreUsuario,  token: response })
             
         
-            console.log("token: ", userData.token)
-            console.log("nombreUsuario: ", userData.nombre_usuario)
+            //console.log("token: ", userData.token)
+            //console.log("nombreUsuario: ", userData.nombre_usuario)
             
         })
         .catch(error => console.log("Error: ", error))
@@ -88,9 +88,7 @@ function Login() {
 
                     <div className="header">
                         <h1>
-                            {userData.nombre_usuario} estás en una sesión
-                            {userData.token}
-                            
+                            {userData.nombre_usuario} estás en una sesión                            
                         </h1>
                         <button onClick={handleCerrarSesion} className="session-button">Cerrar Sesión</button>
                     </div>
