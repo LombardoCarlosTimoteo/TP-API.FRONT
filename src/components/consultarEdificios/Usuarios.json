@@ -1,0 +1,17 @@
+[
+    {
+      "tipo": "admin",
+      "edificio": "aaa 123",
+      "nombre": "tim",
+      "apellido": "lomb",
+      "dni": "123"
+    },
+    {
+      "tipo": "inquilino",
+      "edificio": "bbb 456",
+      "nombre": "giu",
+      "apellido": "lem",
+      "dni": "456"
+    }
+  ]
+  

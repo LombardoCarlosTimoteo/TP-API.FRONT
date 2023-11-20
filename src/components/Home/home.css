@@ -1,0 +1,15 @@
+.session-button {
+  background-color: #007BFF; /* Color de fondo azul */
+  color: #fff; /* Texto en color blanco */
+  border: none;
+  border-radius: 50px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s; /* Transición suave de color de fondo */
+  display: inline-block; /* Muestra los botones en línea */
+  margin-right: 10px; /* Ajusta el margen entre los botones */
+}
+
+.session-button:hover {
+  background-color: #0056b3; /* Cambia de color al pasar el mouse */
+}
