@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import './formReclamoParticular.css';
 import { useContext } from "react";
 import MyContext from "../ReactContext/myContext";
-
+import { useEffect } from "react";
 function ReclamoParticular() {
     const [descripcion, setDescripcion] = useState("")
     const [piso, setPiso] = useState("")
@@ -11,7 +11,13 @@ function ReclamoParticular() {
     const [datosCorrectos, setdatosCorrectos] = useState(false);
     const [imagenesSeleccionadas, setimagenesSeleccionadas] = useState([]);
     const { userData, setUserData } = useContext(MyContext)
-
+    const [nroReclamo,setnroReclamo] = useState("")
+    
+    useEffect(() => {
+        setDireccionEdificio(userData.idEdificio)
+        setDepartamento(userData.idDepto)
+    }, []);    
+    
     const handleOtroReclamo = (event) => {
         setdatosCorrectos(false);
         setDescripcion("")
@@ -32,11 +38,41 @@ function ReclamoParticular() {
         setimagenesSeleccionadas(imagenes);
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        if (userData.nombre_usuario === "") alert("No has iniciado sesión")
-        else setdatosCorrectos(true);
-    }
+        if (userData.nombre_usuario === "") {
+          alert("Debes iniciar sesión");
+        } else {
+          try {
+            var URL = "http://localhost:8080/api/reclamos";
+            var data = {
+              "idEdificio": userData.idEdificio,
+              //"departamento": userData.idDepto,
+              "descripcion": descripcion,
+              "imagenes": imagenesSeleccionadas
+            };
+      
+            var response = await fetch(URL, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${userData.token}`,
+              },
+              body: JSON.stringify(data),
+            });
+      
+            var responseData = await response.json();
+            console.log("descripcion", descripcion);
+      
+            setnroReclamo(responseData.id);
+            setdatosCorrectos(true);
+  
+            
+          } catch (error) {
+            console.error("Error:", error);
+          }
+        }
+      };
 
     const handledireccionEdificio = (event) => {
         setDireccionEdificio(event.target.value)
@@ -59,7 +95,7 @@ function ReclamoParticular() {
             {datosCorrectos ? (
                 <div className="header">
 
-                    <h1>Reclamo particular enviado. Se debe mostrar el numero de reclamo para despues poder buscarlo</h1>
+                    <h1>Reclamo particular enviado. El numero de reclamo es {nroReclamo}</h1>
 
                     <button onClick={handleOtroReclamo} className="session-button">Realizar otro reclamo particular</button>
                 </div>) :
@@ -72,7 +108,7 @@ function ReclamoParticular() {
                         <div class="form-group row">
                             <label for="direccionEdificio" class="col-sm-2 col-form-label">Dirección edificio</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="direccionEdificio" aria-describedby="direccionEdificio" placeholder="Ingrese la dirección del edificio"
+                                <input type="text" class="form-control" id="direccionEdificio" aria-describedby="direccionEdificio" placeholder="Ingrese la dirección del edificio" readOnly
                                     onChange={handledireccionEdificio}
                                     value={direccionEdificio} />
                             </div>
@@ -94,7 +130,7 @@ function ReclamoParticular() {
                         <div class="form-group row">
                             <label for="Departamento" class="col-sm-2 col-form-label">Departamento</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="Departamento" aria-describedby="Departamento" placeholder="Ingrese el departamento"
+                                <input type="text" class="form-control" id="Departamento" aria-describedby="Departamento" placeholder="Ingrese el departamento" readOnly
                                     onChange={handleDepartamento}
                                     value={departamento} />
                             </div>

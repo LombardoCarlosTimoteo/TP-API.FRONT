@@ -9,7 +9,8 @@ export const MyProvider = ({ children }) => {
         tipoUsuario: "inquilino",
         token: "",
         idEdificio: "",
-        idDepto: ""
+        idDepto: "",
+        usuarioID:""
     });
     const [datosCorrectos, setdatosCorrectos] = useState("");
 

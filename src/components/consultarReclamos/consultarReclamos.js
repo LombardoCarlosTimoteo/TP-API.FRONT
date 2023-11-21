@@ -67,7 +67,7 @@ function ConsultarReclamos() {
                 <h1>Inicia sesión para consultar reclamos.</h1>
 
             )}
-            {userData.tipoUsuario === "admin" && (
+            {userData.tipoUsuario === "ADMIN" && (
                 <div>
 
                     <form class="mx-auto" onSubmit={handleSubmit}>
@@ -179,7 +179,7 @@ function ConsultarReclamos() {
                 </div>
             )}
 
-            {(userData.tipoUsuario === "inquilino" ||userData.tipoUsuario === "dueño" ) && (
+            {(userData.tipoUsuario === "INQUILINO" ||userData.tipoUsuario === "DUENIO" ) && (
                 <div>
 
                 <form class="mx-auto" onSubmit={handleSubmit}>

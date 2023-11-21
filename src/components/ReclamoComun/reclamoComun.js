@@ -10,6 +10,7 @@ function ReclamoComun() {
   const [datosCorrectos, setdatosCorrectos] = useState(false);
   const [imagenesSeleccionadas, setimagenesSeleccionadas] = useState([]);
   const { userData, setUserData } = useContext(MyContext)
+  const [nroReclamo,setnroReclamo] = useState("")
 
   const handleOtroReclamo = (event) => {
     setdatosCorrectos(false);
@@ -18,21 +19,93 @@ function ReclamoComun() {
     setDescripcion("")
     setimagenesSeleccionadas([])
   }
-
+  //const cleanBlobURL = (blobURL) => blobURL.replace(/^blob:/, '');
   const handleFileChange = (event) => {
     const archivos = event.target.files;
     const imagenes = [];
     for (let i = 0; i < archivos.length; i++) {
+      var imagen = (URL.createObjectURL(archivos[i]));
+/*       //blobcleanBlobURL(imagen)
+      imagen = imagen.toString()
+      console.log(imagen)
+      imagenes.push(imagen.substring(5)); */
       imagenes.push(URL.createObjectURL(archivos[i]));
     }
     setimagenesSeleccionadas(imagenes);
   };
 
-  const handleSubmit = (event) => {
+/*   const handleSubmit = (event) => {
     event.preventDefault();
     if (userData.nombre_usuario === "") alert("Debes iniciar sesión")
-    else setdatosCorrectos(true);
-  }
+    else{
+      var URL = "http://localhost:8080/api/reclamos"
+      var data = {
+        "idEdificio": userData.idEdificio,
+        "lugar_comun": lugarComun,
+        "descripcion": descripcion,
+        "imagenes": imagenesSeleccionadas
+      }
+      fetch(URL, { 
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userData.token}`,
+      },
+      body: JSON.stringify({
+        "lugarComun": lugarComun,
+        "descripcion": descripcion,
+        "imagenes": imagenesSeleccionadas
+      })
+    })
+    .then(response => {
+      response.json()
+      console.log("descripcion", descripcion)
+    })
+    .then(data => {
+      nroReclamo = data.id
+    })
+   } */
+    const handleSubmit = async (event) => {
+      event.preventDefault();
+      if (userData.nombre_usuario === "") {
+        alert("Debes iniciar sesión");
+      } else {
+        try {
+          var URL = "http://localhost:8080/api/reclamos";
+          var data = {
+            "idEdificio": userData.idEdificio,
+            "lugarComun": lugarComun,
+            "descripcion": descripcion,
+            "imagenes": imagenesSeleccionadas
+          };
+    
+          var response = await fetch(URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${userData.token}`,
+            },
+            body: JSON.stringify(data),
+          });
+    
+          var responseData = await response.json();
+          console.log("descripcion", descripcion);
+    
+          setnroReclamo(responseData.id);
+          setdatosCorrectos(true);
+
+          
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      }
+    };
+      
+  
+    
+
+    
+
 
   const handledireccionEdificio = (event) => {
     setDireccionEdificio(event.target.value)
@@ -50,7 +123,7 @@ function ReclamoComun() {
       {datosCorrectos ? (
         <div className="header">
 
-          <h1>Reclamo común enviado.Se debe mostrar el numero de reclamo para despues poder buscarlo</h1>
+          <h1>Reclamo común enviado. El numero de reclamo es {nroReclamo}</h1>
 
           <button onClick={handleOtroReclamo} className="session-button">Realizar otro reclamo común</button>
         </div>
@@ -62,7 +135,7 @@ function ReclamoComun() {
           <p></p>
 
           <div class="form-group row">
-            <label for="direccion_edificio" class="col-sm-2 col-form-label">Dirección edificio</label>
+            <label for="userData.idEdificio" class="col-sm-2 col-form-label">Dirección edificio</label>
             <div class="col-sm-10">
               <input type="text" class="form-control" id="direccion_edificio" aria-describedby="direccion_edificio" placeholder="Ingrese la dirección del edificio"
                 onChange={handledireccionEdificio}
@@ -78,10 +151,10 @@ function ReclamoComun() {
               <div class="custom-select">
                 <select class="form-control" id="lugarComun" name="lugarComun" onChange={handleLugarComunChange}>
                   <option value="" disabled selected>Seleccione el lugar común</option>
-                  <option value="sum">Sum</option>
-                  <option value="recepcion">Recepción</option>
-                  <option value="pileta">Pileta</option>
-                  <option value="fondo">Fondo</option>
+                  <option value="SUM">Sum</option>
+                  <option value="RECEPCION">Recepción</option>
+                  <option value="PILETA">Pileta</option>
+                  <option value="FONDO">Fondo</option>
                 </select>
               </div>
             </div>

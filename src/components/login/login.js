@@ -12,17 +12,100 @@ function Login() {
 
     
     var inicioValido
+    
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+    
+        try {
+            const loginResponse = await fetch("http://localhost:8080/auth/login", {
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                method: "POST",
+                body: JSON.stringify({
+                    username: nombreUsuario,
+                    password: contraseña
+                })
+            });
+    
+            if (!loginResponse.ok) {
+                alert("Usuario o contraseña incorrecto");
+                return;
+            }
+    
+            const token = await loginResponse.text();
+    
+            const userLoginResponse = await fetch(`http://localhost:8080/auth/userLogin/${nombreUsuario}`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                method: "GET"
+            });
+    
+            if (!userLoginResponse.ok) {
+                throw new Error("Datos de usuario inválidos");
+            }
+    
+            const userData = await userLoginResponse.json();
+            const userID = userData.usuario.id;
+    
+            const contextResponse = await fetch(`http://localhost:8080/api/context/${userID}`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                method: "GET"
+            });
+    
+            if (!contextResponse.ok) {
+                throw new Error("Datos del contexto inválidos");
+            }
+    
+            const contextData = await contextResponse.json();
+            const listaDeptos = contextData.departamentos;
+            console.log(contextData.departamentos)
+            let deptoEncontradoID;
+            for (let i = 0; i < listaDeptos.length; i++) {
+                if(listaDeptos[i].duenio !== null || listaDeptos[i].inquilino !== null){
+                    if (listaDeptos[i].duenio.id == parseInt(userID, 10)|| listaDeptos[i].inquilino.id == parseInt(userID, 10)) {
+                        deptoEncontradoID = listaDeptos[i].id;
+                        console.log("i es ", i)
+                        console.log(deptoEncontradoID)
+                        break; // Salimos del bucle una vez que encontramos el departamento
+                    }
+                }
+            }
+    
+            setUserData({
+                ...userData,
+                tipoUsuario: userData.usuario.tipoUsuario,
+                usuarioID: userID,
+                nombre_usuario: userData.username,
+                token: token,
+                idEdificio: contextData.id,
+                idDepto: deptoEncontradoID
+            });
+            setdatosCorrectos(true);
+        } catch (error) {
+            console.error("Error en el manejo de las promesas:", error);
+            // Manejar el error según tus necesidades
+        }
+    };
 
-    const handleSubmit = (event) => {
+
+/*     const handleSubmit = (event) => {
 
         event.preventDefault();
        
         //PROVISORIO
-        setdatosCorrectos(true)
+     setdatosCorrectos(true)
         setUserData({ ...userData, nombre_usuario: nombreUsuario })
-        console.log("userData.tipoUsuario",userData.tipoUsuario)
+        console.log("userData.tipoUsuario",userData.tipoUsuario) 
         //PROVISORIO
-        
+        var edificio
+        var token
+        var userID
         var URL = "http://localhost:8080/auth/login"
         var data = {
             username: nombreUsuario,
@@ -48,24 +131,73 @@ function Login() {
             return response.text()
         })
         .then(response => {
+            token = response
             setdatosCorrectos(true)
-
             setUserData({ ...userData, nombre_usuario: nombreUsuario, token: response })
             
-            //OBTENEMOS EL CONTEXT CON EL EDIFICIO Y EL DEPARTAMENTO DEL USUARIO
-            fetch("http://localhost:8080/api/contexto", {
+        })
+        .then(response =>{
+            //OBTENEMOS EL USERID
+            fetch(`http://localhost:8080/auth/userLogin/${nombreUsuario}`, {
                 headers:
             {
-                authorization: "Bearer " + userData.token,
+                "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json"
-            }})
+            },
+            method : "GET"
+            })
+        })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error("datos invalidos")
+                    throw new Error("datos invalidos 1")
                 }
                 return response.json()
             })
-        }).then(response => {
+            .then(response => {
+                userID = response.usuario.id
+                
+            })
+        
+        .then(response => {
+            fetch(`http://localhost:8080/api/context/19`, {
+                headers:
+            {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            method : "GET"
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("datos invalidos 23")
+            }
+            return response.json()
+        })
+        .then(response => {
+            var listaDeptos = response
+            console.log("listaDptos: " ,listaDeptos)
+            var deptoEncontradoID   
+            
+            for (let i=0 ; i<listaDeptos.length(); i++){
+                if (listaDeptos[i].duenio.id === userID || listaDeptos[i].inquilino.id === userID)
+                    deptoEncontradoID = listaDeptos[i].id
+
+            }
+            setUserData({ ...userData, 
+                tipoUsuario: response.usuario.tipoUsuario, 
+                usuarioID: response.usuario.id, 
+                nombre_usuario: response.username, 
+                token: token, 
+                idEdificio: response.id, 
+                idDepto: deptoEncontradoID})
+        }) */
+        
+        
+
+        
+        /*
+        .then(response => {
             //HACEMOS EL LOG DE INICIO DE SESION DEL USUARIO
             var log = {
                 nombre_usuario: nombreUsuario,
@@ -73,7 +205,7 @@ function Login() {
                 accion: "Inicio de sesión"
             }
 
-            fetch("http://localhost:8080/api/", {
+            fetch("http://localhost:8080/edificios/context", {
                 headers:
             {
                 "Content-Type": "application/json"
@@ -87,13 +219,12 @@ function Login() {
                 }
                 return response.text()
             })
-        })
-        .catch(error => console.log("Error: ", error))
+        }) */
+        //
+        //.catch(error => console.log("Error: ", error))
 
 
-
-
-    }
+    //}
     const handleUsuarioChange = (event) => {
         setNombreUSuario(event.target.value);
 
@@ -117,6 +248,11 @@ function Login() {
 
                     <div className="header">
                         <h1> {userData.nombre_usuario} estás en una sesión </h1>
+                        <h1> {userData.tipoUsuario}</h1>
+                        <h1> {userData.usuarioID}</h1>
+                        <h1> {userData.token}</h1>
+                        <h1> {userData.idEdificio}</h1>
+                        <h1> {userData.idDepto}</h1>
 
                         <button onClick={handleCerrarSesion} className="session-button">Cerrar Sesión</button>
                     </div>

@@ -26,7 +26,7 @@ function ConsultarReclamoComun() {
     //si no, cargar aquellos reclamos que correspondan en listaReclamosComunes
 
     useEffect(() => {
-        if (userData.tipoUsuario === "admin") { //si es admin, agarrar todos los reclamos comunes
+        if (userData.tipoUsuario === "ADMIN") { //si es admin, agarrar todos los reclamos comunes
 
             var URL = "http://localhost:8080/api/reclamosComunes"
             var token = `Bearer ${userData.token}`// + userData.token
@@ -93,7 +93,7 @@ function ConsultarReclamoComun() {
             //chequear que el usuario sea admin. si es admin, hacer el setdatoscorrectos
             setdatosCorrectos(true);
         }
-        if (userData.tipoUsuario === "admin") {
+        if (userData.tipoUsuario === "ADMIN") {
             if (nuevoEstadoReclamo !== "") {
                 setestadoReclamo(nuevoEstadoReclamo)
                 console.log("cambios en el reclamo")
@@ -120,7 +120,7 @@ function ConsultarReclamoComun() {
     }
     const handlefiltrarPorEstadoChange = (event) => {
         setfiltrarPorEstadoChange(event.target.value)
-        const listaReclamosPorFiltro = listaReclamosComunes.filter(reclamo => reclamo.estado === filtrarPorEstado);
+        const listaReclamosPorFiltro = listaReclamosParticulares.filter(reclamo => reclamo.estado === filtrarPorEstado);
 
     }
     const handleMedidasTomadasNueva = (event) => {
@@ -142,7 +142,7 @@ function ConsultarReclamoComun() {
                 setnuevoEstadoReclamo(reclamoEncontrado.estado);
                 setDescripcion(reclamoEncontrado.descripcion);
                 setimagenes(reclamoEncontrado.imagenes);
-            }
+            } 
         }
     }
 
@@ -154,7 +154,7 @@ function ConsultarReclamoComun() {
                 <h1>Inicia sesión para consultar reclamos.</h1>
 
             )}
-            {userData.tipoUsuario === "admin" && (
+            {userData.tipoUsuario === "ADMIN" && (
                 <div>
                     <form class="mx-auto" onSubmit={handleSubmit}>
                         <h1>Consultar reclamo particular siendo admin</h1>
@@ -352,7 +352,7 @@ function ConsultarReclamoComun() {
                     </form>
                 </div>
             )}
-            {(userData.tipoUsuario === "inquilino" || userData.tipoUsuario === "dueño") && (
+            {(userData.tipoUsuario === "INQUILINO" || userData.tipoUsuario === "DUENIO") && (
                 <div>
 
                     <form class="mx-auto" onSubmit={handleSubmit}>

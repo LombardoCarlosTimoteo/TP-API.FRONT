@@ -23,7 +23,7 @@ function ConsultarReclamoComun() {
     //si es admin, cargar todos los reclamos en listaReclamosComunes
     //si no, cargar aquellos reclamos que correspondan al edificio del usuario en listaReclamosComunes tambien
     useEffect(() => {
-        if (userData.tipoUsuario === "admin") { //si es admin, agarrar todos los reclamos comunes
+        if (userData.tipoUsuario === "ADMIN") { //si es admin, agarrar todos los reclamos comunes
 
             var URL = "http://localhost:8080/api/reclamosComunes"
             var token = `Bearer ${userData.token}`// + userData.token
@@ -48,7 +48,7 @@ function ConsultarReclamoComun() {
                 .catch(error => console.log("Error: ", error))
         }
 
-        else if (userData.tipoUsuario === "inquilino" || userData.tipoUsuario === "dueño") { //si es inquilino o dueño, agarrar los reclamos de su edificio que se encuentra en el context
+        else if (userData.tipoUsuario === "INQUILINO" || userData.tipoUsuario === "DUENIO") { //si es inquilino o dueño, agarrar los reclamos de su edificio que se encuentra en el context
             var URL = "http://localhost:8080/api/reclamosComunesDeUsuario/{idEdificio}" //idEdificio esta en el contexto
             var token = `Bearer ${userData.token}`// + userData.token
             console.log(token)
@@ -90,7 +90,7 @@ function ConsultarReclamoComun() {
             //chequear que el usuario sea admin. si es admin, hacer el setdatoscorrectos
             setdatosCorrectos(true);
         }
-        if (userData.tipoUsuario === "admin") {
+        if (userData.tipoUsuario === "ADMIN") {
             if (nuevoEstadoReclamo !== "") {
                 setestadoReclamo(nuevoEstadoReclamo)
                 console.log("cambios en el reclamo")
@@ -156,7 +156,7 @@ function ConsultarReclamoComun() {
                 <h1>Inicia sesión para consultar reclamos.</h1>
 
             )}
-            {userData.tipoUsuario === "admin" && (
+            {userData.tipoUsuario === "ADMIN" && (
                 <div>
                     <form class="mx-auto" onSubmit={handleSubmit}>
                         <h1>Consultar reclamo común siendo admin</h1>

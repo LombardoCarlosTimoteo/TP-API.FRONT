@@ -85,17 +85,17 @@ function SignUp() {
             
               <div class="col-sm-10">
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="tipoUsuario" id="tipoUsuario1" value="admin" onChange={handleTipoUsuario} />
+                  <input class="form-check-input" type="radio" name="tipoUsuario" id="tipoUsuario1" value="ADMIN" onChange={handleTipoUsuario} />
                   <label class="form-check-label" for="tipoUsuario1">Admin</label>
                 </div>
 
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="tipoUsuario" id="tipoUsuario2" value="dueño" onChange={handleTipoUsuario} />
+                  <input class="form-check-input" type="radio" name="tipoUsuario" id="tipoUsuario2" value="DUENIO" onChange={handleTipoUsuario} />
                   <label class="form-check-label" for="tipoUsuario2">Dueño</label>
                 </div>
 
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="tipoUsuario" id="tipoUsuario3" value="inquilino" onChange={handleTipoUsuario} />
+                  <input class="form-check-input" type="radio" name="tipoUsuario" id="tipoUsuario3" value="INQUILINO" onChange={handleTipoUsuario} />
                   <label class="form-check-label" for="tipoUsuario3">Inquilino</label>
                 </div>
               </div>

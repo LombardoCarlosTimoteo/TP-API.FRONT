@@ -20,7 +20,7 @@ function RegistrarEdificio() {
     const handleSubmit = (event) => {
         event.preventDefault();
         if (userData.nombre_usuario === "") alert("No has iniciado sesión")
-        else if(userData.tipoUsuario ==="admin") setdatosCorrectos(true);
+        else if(userData.tipoUsuario ==="ADMIN") setdatosCorrectos(true);
         else alert("No eres administrador")
     }
     

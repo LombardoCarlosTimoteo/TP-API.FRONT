@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+    import React, { useState } from "react";
 import './consultarEdificios.css';
 import { useContext } from "react";
 import MyContext from "../ReactContext/myContext";
@@ -27,15 +27,10 @@ function ConsultarEdificios() {
             var token = `Bearer ${userData.token}`// + userData.token
             console.log(token)
             fetch(URL, {
-                //credentials: 'include',
-                //mode: "no-cors",
                 headers: new Headers({
                     'Authorization': token,
                     'Content-Type': "application/json",
-                    //'Content-Type': "text/plain",
-                    //'Access-Control-Allow-Origin': '*',
-                    //"Access-Control-Allow-Headers": '*',
-                    //"Access-Control-Allow-Methods": 'GET,PUT,POST,DELETE'
+                    
                 }),
                 method: "GET"
             })
@@ -46,12 +41,12 @@ function ConsultarEdificios() {
                 return response.json()
             })
             .then(response => {
-                JSON.stringify(response)
+                setEdificios(response)
             })
             .catch(error => console.log("Error: ", error))
         }
-        else if(userData.tipoUsuario === "INQUILINO" || userData.tipoUsuario === "DUNIO"){
-            var URL = "http://localhost:8080/api/edificios/{userData.idEdificio}"
+        else if(userData.tipoUsuario === "INQUILINO" || userData.tipoUsuario === "DUENIO"){
+            var URL = `http://localhost:8080/api/edificios/10`  // ${userData.idEdificio}
             var token = `Bearer ${userData.token}`// + userData.token
             fetch(URL, {
                 headers: new Headers({
@@ -71,10 +66,8 @@ function ConsultarEdificios() {
             })
         }
         
-    })
-    useEffect(() => {
-        setEdificios(edificiosData);
-    }, []);
+    }, [])
+  
     
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -113,15 +106,14 @@ function ConsultarEdificios() {
 
     const handleEdificioChange = (event) => {
         const nombreEdificioABuscar = event.target.value;
-        console.log("nombreEdificioABuscar:", nombreEdificioABuscar);
-
-        const edificioEncontrado = edificios.find(edificio => edificio.direccion === nombreEdificioABuscar);
+        const edificioEncontrado = edificios.find(edificio => edificio.id === parseInt(nombreEdificioABuscar,10));
 
         if (edificioEncontrado) {
+            console.log("aaaa:", nombreEdificioABuscar);
             setedificioABuscar(nombreEdificioABuscar);
-            setcantidadPisos(edificioEncontrado.cantidadPisos);
-            setcantidadDepartamentos(edificioEncontrado.deptosPorPiso);
-            setDireccion(edificioEncontrado.deptosPorPiso);
+            setcantidadPisos(edificioEncontrado.pisos);
+            setcantidadDepartamentos(edificioEncontrado.unidadesXPiso);
+            setDireccion(edificioEncontrado.direccion);
         }
     }
 
@@ -132,7 +124,7 @@ function ConsultarEdificios() {
                 <h1>Inicia sesión para consultar reclamos.</h1>
 
             )}
-            {userData.tipoUsuario === "admin" && (
+            {userData.tipoUsuario === "ADMIN" && (
                 <div>
                     <form class="mx-auto" onSubmit={handleSubmit}>
                         <h1>Consultar edificios</h1>
@@ -146,8 +138,8 @@ function ConsultarEdificios() {
                                         <option value="" disabled selected>Seleccione un edificio</option>
 
                                         {edificios.map((edificio, index) => (
-                                            <option key={index} value={edificio.direccion} onChange={handleEdificioChange}>
-                                                {edificio.direccion}
+                                            <option key={index} value={edificio.id} onChange={handleEdificioChange}>
+                                                {edificio.id}
                                             </option>
                                         ))}
                                     </select>
