@@ -10,19 +10,25 @@ function Login() {
     const { datosCorrectos, setdatosCorrectos } = useContext(MyContext);
     const { userData, setUserData } = useContext(MyContext)
 
+    
     var inicioValido
 
     const handleSubmit = (event) => {
 
         event.preventDefault();
-
+       
+        //PROVISORIO
+        setdatosCorrectos(true)
+        setUserData({ ...userData, nombre_usuario: nombreUsuario })
+        console.log("userData.tipoUsuario",userData.tipoUsuario)
+        //PROVISORIO
+        
         var URL = "http://localhost:8080/auth/login"
         var data = {
             username: nombreUsuario,
             password: contraseña
         };
         fetch(URL, {
-            //mode: "no-cors",
             headers:
             {
                 "Content-Type": "application/json"
@@ -31,42 +37,35 @@ function Login() {
             body: JSON.stringify(data)
 
         })
-            .then(response => {
-                //console.log(response)
-                if (!response.ok) {
-                    alert("Usuario o contraseña incorrecto")
-                    inicioValido = false
-                    throw new Error("datos invalidos")
-                }
-                inicioValido = true
-                return response.text()
-            })
-            /*          .then(response => {//response.text()
-                        console.log(response)
-                    } 
-                     ) */
-            .then(response => {
-                inicioValido = true
-                //console.log(JSON.parse(response.json()))
-                setdatosCorrectos(true)
-                //console.log(response.text())
-                setUserData({ ...userData, nombre_usuario: nombreUsuario, token: response })
+        .then(response => {
+            //console.log(response)
+            if (!response.ok) {
+                alert("Usuario o contraseña incorrecto")
+                inicioValido = false
+                throw new Error("datos invalidos")
+            }
+            inicioValido = true
+            return response.text()
+        })
+        .then(response => {
+            setdatosCorrectos(true)
+
+            setUserData({ ...userData, nombre_usuario: nombreUsuario, token: response })
+            
+            fetch("http://localhost:8080/api/contexto", {})
 
 
-                //console.log("token: ", userData.token)
-                //console.log("nombreUsuario: ", userData.nombre_usuario)
 
-            })
-            .catch(error => console.log("Error: ", error))
+        })
+        .catch(error => console.log("Error: ", error))
 
 
-        //console.log("inicioValido: ",inicioValido)
-        //console.log("datosCorrectos: ",datosCorrectos)
+
 
     }
     const handleUsuarioChange = (event) => {
         setNombreUSuario(event.target.value);
-        //        setUserData({...userData,nombre_usuario: nombreUsuario, token: "2"})
+
     }
 
     const handleContraseñaChange = (event) => {

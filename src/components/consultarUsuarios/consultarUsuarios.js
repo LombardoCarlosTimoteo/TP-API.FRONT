@@ -17,6 +17,7 @@ function ConsultarUsuarios() {
     const [piso, setPiso] = useState("")
     const [departamento, setDepartamento] = useState("")
     const [direccionEdificio, setDireccionEdificio] = useState('')
+    const { userData, setUserData } = useContext(MyContext)
 
     //aca se guardan aquellos atributos a cambiar
     const [nuevotipoUsuario, setnuevotipoUsuario] = useState('');
@@ -26,7 +27,7 @@ function ConsultarUsuarios() {
     const [nuevopiso, setnuevoPiso] = useState("")
     const [nuevodepartamento, setnuevoDepartamento] = useState("")
     const [nuevodireccionEdificio, setnuevoDireccionEdificio] = useState('')
-    const [usuarios, setUsuarios] = useState([]);
+    const [listaUsuarios, setListaUsuarios] = useState([]);
 
     const [dniABuscar, setdniABuscar] = useState('')
     const [usuarioABuscar, setusuarioABuscar] = useState('')
@@ -34,30 +35,30 @@ function ConsultarUsuarios() {
     
     useEffect(() => {
         if (userData.tipoUsuario === "ADMIN") {
-            useEffect(() => {
-                var URL = "http://localhost:8080/api/usuarios"
-                var token = `Bearer ${userData.token}`// + userData.token
-                console.log(token)
-                fetch(URL, {
-
-                    headers: new Headers({
-                        'Authorization': token,
-                    }),
-                    method: "GET"
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error("No se pudo hacer el GET")
-                        }
-                        return response.json()
-                    })
-                    .then(response => {
-                        JSON.stringify(response)
-                        console.log(response)
-                    })
-                    .catch(error => console.log("Error: ", error))
+            
+            //Colocamos la variable URL que guarda la ruta de la API y le agregamos el token que se encuentra en el userData
+            var URL = "http://localhost:8080/api/usuarios"
+            var token = `Bearer ${userData.token}`// + userData.token
+            
+            //Hacemos el GET a la API de todos los usuarios
+            fetch(URL, {
+                headers: new Headers({
+                    'Authorization': token,
+                }),
+                method: "GET"
             })
-        }
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("No se pudo hacer el GET")
+                    }
+                    return response.json()
+                })
+                .then(response => {
+                    JSON.stringify(response)
+                    setListaUsuarios(response)
+                })
+                .catch(error => console.log("Error: ", error))
+    }
     }, []);
 
 
@@ -86,6 +87,36 @@ function ConsultarUsuarios() {
         if (nuevodni !== "") {
             setdni(nuevodni)
         }
+        
+        //Hacemos el PUT a la API para modificar el usuario
+        fetch(`http://localhost:8080/api/usuarios/${usuarioABuscar}`, {
+            headers: new Headers({
+                Authorization: `Bearer ${userData.token}`,
+                'Content-Type': 'application/json'
+            }),
+            method: "PUT",
+            body: JSON.stringify({
+                tipoUsuario: tipoUsuario,
+                nombre: nombre,
+                apellido: apellido,
+                piso: piso,
+                departamento: departamento,
+                direccionEdificio: direccionEdificio
+            })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("No se pudo hacer el PUT")
+                }
+                return response.json()
+            }
+            )
+            .then(response => {
+                JSON.stringify(response)
+                console.log(response)
+            })
+
+
         setnuevotipoUsuario("")
         setnuevonombre("")
         setnuevoApellido("")
@@ -117,10 +148,13 @@ function ConsultarUsuarios() {
     const handleNuevoDepartamento = (event) => {
         setnuevoDepartamento(event.target.value)
     }
+    const handleEliminarUsuario = (event) => {
+       console.log("eliminar usuario")
+    }
 
     const handleUsuariosChange = (event) => {
         const usuarioABuscar = event.target.value;
-        const usuarioEncontrado = usuarios.find(usuario => usuario.dni === usuarioABuscar);
+        const usuarioEncontrado = listaUsuarios.find(usuario => usuario.dni === usuarioABuscar);
         if (usuarioEncontrado) {
             setusuarioABuscar(usuarioABuscar);
             setNombre(usuarioEncontrado.nombre);
@@ -145,7 +179,7 @@ function ConsultarUsuarios() {
                             <div class="custom-select">
                             <select class="form-control" id="lugarComun" name="lugarComun" onChange={handleUsuariosChange} >
                                     <option value="" disabled selected>Seleccione un usuario</option>
-                                    {usuarios.map((usuario, index) => (
+                                    {listaUsuarios.map((usuario, index) => (
                                         <option key={index} value={usuario.dni}>
                                             {usuario.nombre} {usuario.apellido}
                                         </option>
@@ -314,11 +348,12 @@ function ConsultarUsuarios() {
                     <p></p>
 
                     <div class="form-group row">
-                        <div class="col-sm-2"></div>
-                        <div class="col-sm-10">
-                            <button type="submit" >Realizar cambios</button>
+                            <div class="col-sm-1"></div>
+                            <div className="col-sm-10 d-flex justify-content-center">
+                                <button type="submit" className="mx-5">Realizar cambios</button>
+                                <button onClick={handleEliminarUsuario} className="mx-5">Eliminar usuario</button>
+                            </div>
                         </div>
-                    </div>
                 </div>
             </form>
         </div>

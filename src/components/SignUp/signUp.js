@@ -98,7 +98,6 @@ function SignUp() {
                   <input class="form-check-input" type="radio" name="tipoUsuario" id="tipoUsuario3" value="inquilino" onChange={handleTipoUsuario} />
                   <label class="form-check-label" for="tipoUsuario3">Inquilino</label>
                 </div>
-
               </div>
 
               <p></p>

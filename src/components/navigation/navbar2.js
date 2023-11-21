@@ -59,6 +59,11 @@ const NavBar2 = () => {
 
           {userData.tipoUsuario === "admin" && userData.nombre_usuario !== "" && (
             <li className="nav-item">
+              <Link to="/registrarDepartamentos" className="nav-link">Consultar departamentos</Link>
+            </li>
+          )}
+          {userData.tipoUsuario === "admin" && userData.nombre_usuario !== "" && (
+            <li className="nav-item">
               <Link to="/consultarEdificio" className="nav-link">Consultar edificios</Link>
             </li>
           )}
@@ -69,12 +74,7 @@ const NavBar2 = () => {
             </li>
           )}
 
-          {userData.tipoUsuario === "admin" && userData.nombre_usuario !== "" && (
-            <li className="nav-item">
-              <Link to="/registrarDepartamentos" className="nav-link">Registrar departamentos</Link>
-            </li>
-          )}
-          
+
         </ul>
       </div>
     </nav>

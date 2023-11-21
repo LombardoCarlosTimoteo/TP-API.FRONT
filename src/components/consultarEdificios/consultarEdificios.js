@@ -22,7 +22,7 @@ function ConsultarEdificios() {
 
     //aca hacer la carga de todos los jsons
     useEffect(() => {
-        if(userData.tipoUsuario === "admin"){
+        if(userData.tipoUsuario === "ADMIN"){
             var URL = "http://localhost:8080/api/edificios"
             var token = `Bearer ${userData.token}`// + userData.token
             console.log(token)
@@ -47,9 +47,28 @@ function ConsultarEdificios() {
             })
             .then(response => {
                 JSON.stringify(response)
-                console.log(response)
             })
             .catch(error => console.log("Error: ", error))
+        }
+        else if(userData.tipoUsuario === "INQUILINO" || userData.tipoUsuario === "DUNIO"){
+            var URL = "http://localhost:8080/api/edificios/{userData.idEdificio}"
+            var token = `Bearer ${userData.token}`// + userData.token
+            fetch(URL, {
+                headers: new Headers({
+                    'Authorization': token,
+                    'Content-Type': "application/json",
+                }),
+                method: "GET"
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("No se pudo hacer el GET")
+                }
+                return response.json()
+            })
+            .then(response => {
+                JSON.stringify(response)
+            })
         }
         
     })
@@ -87,6 +106,9 @@ function ConsultarEdificios() {
     }
     const handlenuevacantidadPisos = (event) => {
         setnuevacantidadPisos(event.target.value)
+    }
+    const handleEliminarEdificio = (event) => {
+        console.log("eliminar edificio")
     }
 
     const handleEdificioChange = (event) => {
@@ -209,9 +231,10 @@ function ConsultarEdificios() {
                         <p></p>
 
                         <div class="form-group row">
-                            <div class="col-sm-2"></div>
-                            <div class="col-sm-10">
-                                <button type="submit" >Realizar cambios </button>
+                            <div class="col-sm-1"></div>
+                            <div className="col-sm-10 d-flex justify-content-center">
+                                <button type="submit" className="mx-5">Realizar cambios</button>
+                                <button onClick={handleEliminarEdificio} className="mx-5">Eliminar edificio</button>
                             </div>
                         </div>
                     </form>

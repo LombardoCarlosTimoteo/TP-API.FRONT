@@ -51,6 +51,9 @@ function RegistrarDepartamentos() {
     const handleestaAlquilado = (event) => {
         setestaAlquilado(event.target.value)
     }
+    const handleEliminarDepartamento = (event) => {
+        console.log("eliminar depto")
+    }
 
     return (
         <div>
@@ -63,8 +66,8 @@ function RegistrarDepartamentos() {
                 </div>) :
                 (
                     <form class="mx-auto" onSubmit={handleSubmit}>
-                        <h1>Formulario registrar departamento</h1>
-                        
+                        <h1>Formulario consultar departamento</h1>
+
                         <p></p>
 
                         <div class="form-group row">
@@ -75,7 +78,7 @@ function RegistrarDepartamentos() {
                                     value={direccionEdificio} />
                             </div>
                         </div>
-                        
+
                         <p></p>
 
                         <div class="form-group row">
@@ -86,7 +89,7 @@ function RegistrarDepartamentos() {
                                     value={piso} />
                             </div>
                         </div>
-                        
+
                         <p></p>
 
                         <div class="form-group row">
@@ -97,9 +100,9 @@ function RegistrarDepartamentos() {
                                     value={departamento} />
                             </div>
                         </div>
-                        
+
                         <p></p>
-                        
+
                         <div class="form-group row">
                             <label for="Departamento" class="col-sm-2 col-form-label">DNI dueño</label>
                             <div class="col-sm-10">
@@ -123,7 +126,7 @@ function RegistrarDepartamentos() {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <p></p>
 
                         {(estaAlquilado === "SI") && (
@@ -136,13 +139,14 @@ function RegistrarDepartamentos() {
                                 </div>
                             </div>
                         )}
-                        
+
                         <p></p>
 
                         <div class="form-group row">
-                            <div class="col-sm-2"></div>
-                            <div class="col-sm-10">
-                                <button type="submit" class="">Registrar edificio</button>
+                            <div class="col-sm-1"></div>
+                            <div className="col-sm-10 d-flex justify-content-center">
+                                <button type="submit" className="mx-5">Registrar departamento</button>
+                                <button onClick={handleEliminarDepartamento} className="mx-5">Eliminar Departamento</button>
                             </div>
                         </div>
                     </form>
