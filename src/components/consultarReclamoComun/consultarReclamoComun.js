@@ -19,13 +19,14 @@ function ConsultarReclamoComun() {
     const [listaReclamosPorFiltro, setlistaReclamosPorFiltro] = useState([]);
     const [medidasTomadasActual, setmedidasTomadasActual] = useState("");
     const [medidasTomadasNueva, setmedidasTomadasNueva,] = useState("");
+    const [listaTodosReclamos, setlistaTodosReclamos,] = useState([]);
 
     //si es admin, cargar todos los reclamos en listaReclamosComunes
     //si no, cargar aquellos reclamos que correspondan al edificio del usuario en listaReclamosComunes tambien
     useEffect(() => {
         if (userData.tipoUsuario === "ADMIN") { //si es admin, agarrar todos los reclamos comunes
 
-            var URL = "http://localhost:8080/api/reclamosComunes"
+            var URL = "http://localhost:8080/api/reclamos"
             var token = `Bearer ${userData.token}`// + userData.token
 
             fetch(URL, {
@@ -42,37 +43,39 @@ function ConsultarReclamoComun() {
                     return response.json()
                 })
                 .then(response => {
-                    JSON.stringify(response)
-                    console.log(response)
+                    //console.log(response)
+                    //JSON.stringify(response)
+                    setlistaTodosReclamos(response);
+                    console.log("listaTodosReclamos", listaTodosReclamos)
                 })
                 .catch(error => console.log("Error: ", error))
         }
 
-        else if (userData.tipoUsuario === "INQUILINO" || userData.tipoUsuario === "DUENIO") { //si es inquilino o dueño, agarrar los reclamos de su edificio que se encuentra en el context
-            var URL = "http://localhost:8080/api/reclamosComunesDeUsuario/{idEdificio}" //idEdificio esta en el contexto
-            var token = `Bearer ${userData.token}`// + userData.token
-            console.log(token)
-            fetch(URL, {
+        /*  else if (userData.tipoUsuario === "INQUILINO" || userData.tipoUsuario === "DUENIO") { //si es inquilino o dueño, agarrar los reclamos de su edificio que se encuentra en el context
+             var URL = "http://localhost:8080/api/reclamosComunesDeUsuario/{idEdificio}" //idEdificio esta en el contexto
+             var token = `Bearer ${userData.token}`// + userData.token
+             console.log(token)
+             fetch(URL, {
+ 
+                 headers: new Headers({
+                     'Authorization': token,
+                 }),
+                 method: "GET"
+             })
+                 .then(response => {
+                     if (!response.ok) {
+                         throw new Error("No se pudo hacer el GET")
+                     }
+                     return response.json()
+                 })
+                 .then(response => {
+                     JSON.stringify(response)
+                     console.log(response)
+                 })
+                 .catch(error => console.log("Error: ", error))
+         } */
 
-                headers: new Headers({
-                    'Authorization': token,
-                }),
-                method: "GET"
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("No se pudo hacer el GET")
-                    }
-                    return response.json()
-                })
-                .then(response => {
-                    JSON.stringify(response)
-                    console.log(response)
-                })
-                .catch(error => console.log("Error: ", error))
-        }
-
-    })
+    }, [])
 
     const handleFileChange = (event) => {
         const archivos = event.target.files;
@@ -94,7 +97,7 @@ function ConsultarReclamoComun() {
             if (nuevoEstadoReclamo !== "") {
                 setestadoReclamo(nuevoEstadoReclamo)
                 console.log("cambios en el reclamo")
-                console.log("nuevoEstadoReclamo",nuevoEstadoReclamo)
+                console.log("nuevoEstadoReclamo", nuevoEstadoReclamo)
             }
             if (medidasTomadasNueva !== "") setmedidasTomadasActual(medidasTomadasNueva)
         }
@@ -117,8 +120,22 @@ function ConsultarReclamoComun() {
         setnuevoEstadoReclamo(event.target.value)
     }
     const handlefiltrarPorEstadoChange = (event) => {
+        //setlistaReclamosPorFiltro([])
         setfiltrarPorEstadoChange(event.target.value)
-        const listaReclamosPorFiltro = listaReclamosComunes.filter(reclamo => reclamo.estado === filtrarPorEstado);
+
+        while (listaReclamosPorFiltro.length > 0)
+            listaReclamosPorFiltro.pop()
+
+        //const lReclamosComunesPorFiltro = listaTodosReclamos.filter(reclamo => reclamo.estadoReclamo === filtrarPorEstado && reclamo.tipoReclamo === "COMUN");
+        console.log("aca adentor todos reclamos", listaTodosReclamos)
+        for (let i = 0; i < listaTodosReclamos.length; i++) {
+            if (listaTodosReclamos[i].estadoReclamo === filtrarPorEstado && listaTodosReclamos[i].tipoReclamo === "COMUN") {
+                console.log(listaTodosReclamos[i])
+                listaReclamosPorFiltro.push(listaTodosReclamos[i])
+            }
+        }
+        //setlistaReclamosPorFiltro(listaTodosReclamos.filter(reclamo => {return reclamo.estadoReclamo == filtrarPorEstado && reclamo.tipoReclamo == "COMUN"}))
+        console.log("listaReclamosPorFiltro", listaReclamosPorFiltro)
     }
     const handleMedidasTomadasNueva = (event) => {
         setmedidasTomadasNueva(event.target.value)
@@ -186,12 +203,12 @@ function ConsultarReclamoComun() {
                                     <div class="custom-select">
                                         <select class="form-control" id="Nuevo estado" name="Nuevo estado" onChange={handlefiltrarPorEstadoChange}>
                                             <option value="" disabled selected>Seleccione un estado</option>
-                                            <option value="nuevo">Nuevo</option>
-                                            <option value="abierto">Abierto</option>
-                                            <option value="enProceso">En proceso</option>
-                                            <option value="desestimado">Desestimado</option>
-                                            <option value="anulado">Anulado</option>
-                                            <option value="desestimado">Desestimado</option>
+                                            <option value="NUEVO">Nuevo</option>
+                                            <option value="ABIERTO">Abierto</option>
+                                            <option value="EN_PROCESO">En proceso</option>
+                                            <option value="DESESTIMADO">Desestimado</option>
+                                            <option value="ANULADO">Anulado</option>
+                                            <option value="DESESTIMADO">Desestimado</option>
                                         </select>
                                     </div>
                                 </div>
@@ -216,11 +233,11 @@ function ConsultarReclamoComun() {
                                 <label class="col-sm-2 col-form-label">Lista de reclamos</label>
                                 <div class="col-sm-10">
                                     <div class="custom-select">
-                                        <select class="form-control" id="lugarComun" name="lugarComun" onChange={handleReclamoFiltrado}>
+                                        <select class="form-control" id="lugarComun" name="lugarComun" onChange={handlefiltrarPorEstadoChange}>
                                             <option value="" disabled selected>Seleccione un reclamo</option>
                                             {listaReclamosPorFiltro.map((reclamo, index) => (
-                                                <option key={index} value={reclamo.numeroReclamo}>
-                                                    {reclamo.numeroReclamo}
+                                                <option key={index} value={reclamo.id}>
+                                                    {reclamo.id}
                                                 </option>
                                             ))}
                                         </select>
@@ -297,13 +314,13 @@ function ConsultarReclamoComun() {
                             <div class="col-sm-10">
                                 <div class="custom-select">
                                     <select class="form-control" id="Nuevo estado" name="Nuevo estado" onChange={handleNuevoEstadoChange}>
-                                    <option value="" disabled selected>Seleccione un estado</option>
-                                            <option value="nuevo">Nuevo</option>
-                                            <option value="abierto">Abierto</option>
-                                            <option value="enProceso">En proceso</option>
-                                            <option value="desestimado">Desestimado</option>
-                                            <option value="anulado">Anulado</option>
-                                            <option value="desestimado">Desestimado</option>
+                                        <option value="" disabled selected>Seleccione un estado</option>
+                                        <option value="nuevo">Nuevo</option>
+                                        <option value="abierto">Abierto</option>
+                                        <option value="enProceso">En proceso</option>
+                                        <option value="desestimado">Desestimado</option>
+                                        <option value="anulado">Anulado</option>
+                                        <option value="desestimado">Desestimado</option>
                                     </select>
                                 </div>
                             </div>
@@ -326,7 +343,7 @@ function ConsultarReclamoComun() {
                         <div class="form-group row">
                             <div class="col-sm-1"></div>
                             <div className="col-sm-10 d-flex justify-content-center">
-                            {tipoBusqueda === "busquedaPorNumeroReclamo" && (<button onClick={handleRealizarBusqueda} className="mx-5">Realizar búsqueda</button>)}
+                                {tipoBusqueda === "busquedaPorNumeroReclamo" && (<button onClick={handleRealizarBusqueda} className="mx-5">Realizar búsqueda</button>)}
                                 <button type="submit" className="mx-5">Realizar cambios</button>
                                 <button onClick={handleEliminarReclamo} className="mx-5">Eliminar reclamo común</button>
                             </div>
@@ -335,7 +352,7 @@ function ConsultarReclamoComun() {
                 </div>
             )}
 
-            {(userData.tipoUsuario === "inquilino" || userData.tipoUsuario === "dueño") && (
+            {(userData.tipoUsuario === "INQUILINO" || userData.tipoUsuario === "DUENIO") && (
                 <div>
 
                     <form class="mx-auto" onSubmit={handleSubmit}>
@@ -399,7 +416,7 @@ function ConsultarReclamoComun() {
                                     <div class="custom-select">
                                         <select class="form-control" id="lugarComun" name="lugarComun" onChange={handleReclamoFiltrado}>
                                             <option value="" disabled selected>Seleccione un reclamo</option>
-                                            {listaReclamosPorFiltro.map((reclamo, index) => (
+                                            {setlistaTodosReclamos.map((reclamo, index) => (
                                                 <option key={index} value={reclamo.numeroReclamo}>
                                                     {reclamo.numeroReclamo}
                                                 </option>
@@ -477,7 +494,7 @@ function ConsultarReclamoComun() {
                         <div class="form-group row">
                             <div class="col-sm-2"></div>
                             <div class="col-sm-10">
-                            {tipoBusqueda === "busquedaPorNumeroReclamo" && (<button onClick={handleRealizarBusqueda} className="mx-5">Realizar búsqueda</button>)}
+                                {tipoBusqueda === "busquedaPorNumeroReclamo" && (<button onClick={handleRealizarBusqueda} className="mx-5">Realizar búsqueda</button>)}
                             </div>
                         </div>
                     </form>

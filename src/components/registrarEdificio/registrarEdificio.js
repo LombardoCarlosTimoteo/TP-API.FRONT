@@ -20,7 +20,34 @@ function RegistrarEdificio() {
     const handleSubmit = (event) => {
         event.preventDefault();
         if (userData.nombre_usuario === "") alert("No has iniciado sesión")
-        else if(userData.tipoUsuario ==="ADMIN") setdatosCorrectos(true);
+        else if(userData.tipoUsuario ==="ADMIN"){
+            setdatosCorrectos(true);
+            var URL = "http://localhost:8080/api/edificios"
+            var token = `Bearer ${userData.token}`// + userData.token
+            var data = {
+                "direccion": direccionEdificio,
+                "pisos": cantidadPisos,
+                "unidadesXPiso": departamentosPorPiso
+            }
+            
+            //Hacemos el GET a la API de todos los usuarios
+            fetch(URL, {
+                headers: {
+                    'Authorization': token,
+                    "Content-Type": "application/json"
+                },
+                method: "POST",
+                body: JSON.stringify(data)
+                
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("No se pudo hacer el POST")
+                    }
+                    return response.json()
+                })
+                .catch(error => console.log("Error: ", error))
+           }
         else alert("No eres administrador")
     }
     

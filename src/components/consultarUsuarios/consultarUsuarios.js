@@ -6,6 +6,7 @@ import MyContext from "../ReactContext/myContext";
 import usuariosData from './Usuarios.json';
 
 import { useEffect } from 'react';
+import { Alert } from "bootstrap";
 function ConsultarUsuarios() {
 
     //aca va todo los datos actuales del usuario
@@ -13,7 +14,7 @@ function ConsultarUsuarios() {
     const [usuario, setusuario] = useState('');
     const [nombre, setNombre] = useState('');
     const [apellido, setApellido] = useState('');
-    const [dni, setdni] = useState('');
+    const [idUsuario, setidUsuario] = useState('');
     const [piso, setPiso] = useState("")
     const [departamento, setDepartamento] = useState("")
     const [direccionEdificio, setDireccionEdificio] = useState('')
@@ -84,9 +85,7 @@ function ConsultarUsuarios() {
         if (nuevoapellido !== "") {
             setApellido(nuevoapellido)
         }
-        if (nuevodni !== "") {
-            setdni(nuevodni)
-        }
+        
         
         //Hacemos el PUT a la API para modificar el usuario
         fetch(`http://localhost:8080/api/usuarios/${usuarioABuscar}`, {
@@ -150,20 +149,63 @@ function ConsultarUsuarios() {
     }
     const handleEliminarUsuario = (event) => {
        console.log("eliminar usuario")
-    }
+        
+       var URL = `http://localhost:8080/api/usuarios/${idUsuario}`
+       var token = `Bearer ${userData.token}`// + userData.token
+       
+       //Hacemos el DELETE a la API de todos los usuarios
+       fetch(URL, {
+           headers: new Headers({
+               'Authorization': token,
+               'Content-Type': 'application/json'
+           }),
+           method: "DELETE"
+       })
+           .then(response => {
+               if (!response.ok) {
+                   throw new Error("No se pudo hacer el GET")
+               }
+               return response
+           })
+           .then(response => {
+            var URL = "http://localhost:8080/api/usuarios"
+            var token = `Bearer ${userData.token}`// + userData.token
+            
+            //Hacemos el GET a la API de todos los usuarios
+            fetch(URL, {
+                headers: new Headers({
+                    'Authorization': token,
+                }),
+                method: "GET"
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("No se pudo hacer el GET")
+                    }
+                    return response.json()
+                })
+                .then(response => {
+                    JSON.stringify(response)
+                    setListaUsuarios(response)
+                })
+                .catch(error => console.log("Error: ", error))
+           })
+           .catch(error => console.log("Error: ", error))
+
+
+        }
 
     const handleUsuariosChange = (event) => {
         const usuarioABuscar = event.target.value;
-        const usuarioEncontrado = listaUsuarios.find(usuario => usuario.dni === usuarioABuscar);
+        const usuarioEncontrado = listaUsuarios.find(usuario => usuario.id === parseInt(usuarioABuscar, 10));
+        
         if (usuarioEncontrado) {
+
             setusuarioABuscar(usuarioABuscar);
             setNombre(usuarioEncontrado.nombre);
             setApellido(usuarioEncontrado.apellido);
-            setdni(usuarioEncontrado.dni);
-            setPiso(usuarioEncontrado.piso);
-            setDepartamento(usuarioEncontrado.departamento);
-            setDireccionEdificio(usuarioEncontrado.direccionEdificio);
             setTipoUsuario(usuarioEncontrado.tipoUsuario);
+            setidUsuario(usuarioEncontrado.id)
         } 
     }
 
@@ -180,7 +222,7 @@ function ConsultarUsuarios() {
                             <select class="form-control" id="lugarComun" name="lugarComun" onChange={handleUsuariosChange} >
                                     <option value="" disabled selected>Seleccione un usuario</option>
                                     {listaUsuarios.map((usuario, index) => (
-                                        <option key={index} value={usuario.dni}>
+                                        <option key={index} value={usuario.id}>
                                             {usuario.nombre} {usuario.apellido}
                                         </option>
                                     ))}
@@ -252,10 +294,10 @@ function ConsultarUsuarios() {
                     <p></p>
 
                     <div class="form-group row">
-                        <label for="dni" class="col-sm-2 col-form-label">DNI actual</label>
+                        <label for="dni" class="col-sm-2 col-form-label">ID actual</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="dni" aria-describedby="dni" readOnly
-                                value={dni} />
+                                value={idUsuario} />
                         </div>
                     </div>
                     

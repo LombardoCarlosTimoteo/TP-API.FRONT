@@ -76,7 +76,8 @@ function ReclamoComun() {
             "idEdificio": userData.idEdificio,
             "lugarComun": lugarComun,
             "descripcion": descripcion,
-            "imagenes": imagenesSeleccionadas
+            //"imagenes": imagenesSeleccionadas,
+            "estadoReclamo": "NUEVO"
           };
     
           var response = await fetch(URL, {

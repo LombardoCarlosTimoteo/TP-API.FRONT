@@ -5,7 +5,7 @@ function SignUp() {
   const [tipoUsuario, setTipoUsuario] = useState('');
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
-  const [dni, setdni] = useState('');
+  const [nombreUsuario, setnombreUsuario] = useState('');
   const [contraseña, setContraseña] = useState('');
   const [confirmar, setconfirmar] = useState('');
   const [datosCorrectos, setdatosCorrectos] = useState(false);
@@ -18,7 +18,7 @@ function SignUp() {
     setTipoUsuario("")
     setNombre("")
     setApellido("")
-    setdni("")
+    setnombreUsuario("")
     setContraseña("")
     setconfirmar("")
     setPiso("")
@@ -27,8 +27,41 @@ function SignUp() {
   }
   const handleSubmit = (event) => {
     event.preventDefault();
-    contraseña === confirmar ? setdatosCorrectos(true) : setdatosCorrectos(false);
+    console.log("contraseña", contraseña)
+    console.log("confirmar", confirmar)
+    if (true) {
+      setdatosCorrectos(true)
+      var URL = "http://localhost:8080/auth/register"
+      var data = {
+        "usuario":
+        {
+          "tipoUsuario": tipoUsuario,
+          "nombre": nombre,
+          "apellido": apellido,
+        },
+        "username": nombreUsuario,
+        "password": contraseña,
+      }
+      console.log(data)
+      fetch(URL, {
+        headers: {
+          "Content-Type": "application/json"
+        },
+        method: "POST",
+        body: JSON.stringify(data)
+        
+      });
+    }
+    else { setdatosCorrectos(false); }
+    console.log(datosCorrectos)
+    if (datosCorrectos) {
+      console.log("aaaaaaaaaaaaa")
+
+
+    }
   }
+
+
 
   const handleTipoUsuario = (event) => {
     setTipoUsuario(event.target.value);
@@ -42,8 +75,8 @@ function SignUp() {
     setApellido(event.target.value);
   }
 
-  const handleDni = (event) => {
-    setdni(event.target.value);
+  const handlenombreUsuario = (event) => {
+    setnombreUsuario(event.target.value);
   }
 
   const handleContraseñaChange = (event) => {
@@ -82,7 +115,7 @@ function SignUp() {
 
             <div class="form-group row">
               <label for="tipoUsuario" class="col-sm-2 col-form-label">Tipo de usuario</label>
-            
+
               <div class="col-sm-10">
                 <div class="form-check">
                   <input class="form-check-input" type="radio" name="tipoUsuario" id="tipoUsuario1" value="ADMIN" onChange={handleTipoUsuario} />
@@ -132,7 +165,7 @@ function SignUp() {
                     value={departamento} />
                 </div>
               </div>
-              
+
               <p></p>
 
               <div class="form-group row">
@@ -143,7 +176,7 @@ function SignUp() {
                     value={nombre} />
                 </div>
               </div>
-              
+
               <p></p>
 
               <div class="form-group row">
@@ -156,16 +189,18 @@ function SignUp() {
               </div>
 
               <p></p>
-
               <div class="form-group row">
-                <label for="dni" class="col-sm-2 col-form-label">DNI</label>
+                <label for="apellido" class="col-sm-2 col-form-label">Nombre de usuario</label>
                 <div class="col-sm-10">
-                  <input type="text" class="form-control" id="dni" aria-describedby="dni" placeholder="Ingrese un dni"
-                    onChange={handleDni}
-                    value={dni} />
+                  <input type="text" class="form-control" id="apellido" aria-describedby="apellido" placeholder="Ingrese el nombre de usuarui"
+                    onChange={handlenombreUsuario}
+                    value={nombreUsuario} />
                 </div>
               </div>
-              
+
+
+
+
               <p></p>
 
               <div class="form-group row">
@@ -176,7 +211,7 @@ function SignUp() {
                   >
                 </div>
               </div>
-              
+
               <p></p>
 
               <div class="form-group row">
@@ -187,9 +222,9 @@ function SignUp() {
                   >
                 </div>
               </div>
-              
+
               <p></p>
-              
+
               <div class="form-group row">
                 <div class="col-sm-2"></div>
                 <div class="col-sm-10">

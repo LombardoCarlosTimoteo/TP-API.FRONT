@@ -248,11 +248,6 @@ function Login() {
 
                     <div className="header">
                         <h1> {userData.nombre_usuario} estás en una sesión </h1>
-                        <h1> {userData.tipoUsuario}</h1>
-                        <h1> {userData.usuarioID}</h1>
-                        <h1> {userData.token}</h1>
-                        <h1> {userData.idEdificio}</h1>
-                        <h1> {userData.idDepto}</h1>
 
                         <button onClick={handleCerrarSesion} className="session-button">Cerrar Sesión</button>
                     </div>

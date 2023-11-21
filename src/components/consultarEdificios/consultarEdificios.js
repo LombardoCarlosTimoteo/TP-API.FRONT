@@ -128,7 +128,6 @@ function ConsultarEdificios() {
                 <div>
                     <form class="mx-auto" onSubmit={handleSubmit}>
                         <h1>Consultar edificios</h1>
-                        <h1>{userData.token}</h1>
                         <p></p>
                         <div class="form-group row">
                             <label class="col-sm-2 col-form-label">Edificios</label>

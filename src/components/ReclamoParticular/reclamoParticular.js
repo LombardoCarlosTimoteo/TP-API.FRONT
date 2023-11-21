@@ -49,7 +49,8 @@ function ReclamoParticular() {
               "idEdificio": userData.idEdificio,
               //"departamento": userData.idDepto,
               "descripcion": descripcion,
-              "imagenes": imagenesSeleccionadas
+              //"imagenes": imagenesSeleccionadas
+              "estadoReclamo": "NUEVO"
             };
       
             var response = await fetch(URL, {
@@ -95,7 +96,7 @@ function ReclamoParticular() {
             {datosCorrectos ? (
                 <div className="header">
 
-                    <h1>Reclamo particular enviado. El numero de reclamo es {nroReclamo}</h1>
+                    <h1>Reclamo particular enviado. El numero de reclamo es #{nroReclamo}</h1>
 
                     <button onClick={handleOtroReclamo} className="session-button">Realizar otro reclamo particular</button>
                 </div>) :
@@ -106,7 +107,7 @@ function ReclamoParticular() {
                         <p></p>
 
                         <div class="form-group row">
-                            <label for="direccionEdificio" class="col-sm-2 col-form-label">Dirección edificio</label>
+                            <label for="direccionEdificio" class="col-sm-2 col-form-label">ID edificio usuario</label>
                             <div class="col-sm-10">
                                 <input type="text" class="form-control" id="direccionEdificio" aria-describedby="direccionEdificio" placeholder="Ingrese la dirección del edificio" readOnly
                                     onChange={handledireccionEdificio}
