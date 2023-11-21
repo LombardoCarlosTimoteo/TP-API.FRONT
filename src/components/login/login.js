@@ -28,6 +28,7 @@ function Login() {
             username: nombreUsuario,
             password: contraseña
         };
+        //HACEMOS LOGIN
         fetch(URL, {
             headers:
             {
@@ -38,7 +39,6 @@ function Login() {
 
         })
         .then(response => {
-            //console.log(response)
             if (!response.ok) {
                 alert("Usuario o contraseña incorrecto")
                 inicioValido = false
@@ -52,10 +52,41 @@ function Login() {
 
             setUserData({ ...userData, nombre_usuario: nombreUsuario, token: response })
             
-            fetch("http://localhost:8080/api/contexto", {})
+            //OBTENEMOS EL CONTEXT CON EL EDIFICIO Y EL DEPARTAMENTO DEL USUARIO
+            fetch("http://localhost:8080/api/contexto", {
+                headers:
+            {
+                authorization: "Bearer " + userData.token,
+                "Content-Type": "application/json"
+            }})
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("datos invalidos")
+                }
+                return response.json()
+            })
+        }).then(response => {
+            //HACEMOS EL LOG DE INICIO DE SESION DEL USUARIO
+            var log = {
+                nombre_usuario: nombreUsuario,
+                fecha: new Date(),
+                accion: "Inicio de sesión"
+            }
 
-
-
+            fetch("http://localhost:8080/api/", {
+                headers:
+            {
+                "Content-Type": "application/json"
+            },
+            method: "POST",
+            body: JSON.stringify(log)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("datos invalidos")
+                }
+                return response.text()
+            })
         })
         .catch(error => console.log("Error: ", error))
 
