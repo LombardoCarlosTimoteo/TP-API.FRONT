@@ -3,6 +3,7 @@ import './consultarReclamoComun.css';
 import { useContext } from "react";
 import MyContext from "../ReactContext/myContext";
 import { useEffect } from 'react';
+import reclamos from "./reclamos.json"
 
 function ConsultarReclamoComun() {
     const [descripcion, setDescripcion] = useState("")
@@ -20,7 +21,12 @@ function ConsultarReclamoComun() {
     const [medidasTomadasActual, setmedidasTomadasActual] = useState("");
     const [medidasTomadasNueva, setmedidasTomadasNueva,] = useState("");
     const [listaTodosReclamos, setlistaTodosReclamos,] = useState([]);
+    const [idReclamo, setidReclamo,] = useState([]);
+    const reclamoSeleccionado = "";
 
+    useEffect(() => {
+        setlistaTodosReclamos(reclamos)
+    })
     //si es admin, cargar todos los reclamos en listaReclamosComunes
     //si no, cargar aquellos reclamos que correspondan al edificio del usuario en listaReclamosComunes tambien
     useEffect(() => {
@@ -103,25 +109,40 @@ function ConsultarReclamoComun() {
         }
     }
 
-    const handleReclamoFiltrado = (event) => {
+    const handleReclamoFiltradosSeleccionado = (event) => {
         //esto se hace cuando se selecciona un reclamo dentro de lista de reclamos.
         const reclamoABuscar = event.target.value;
-        const reclamoEncontrado = listaReclamosComunes.find(reclamo => reclamo === reclamoABuscar);
+        console.log("reclamoABuscar", reclamoABuscar)
+
+        const reclamoEncontrado = listaReclamosPorFiltro.find(reclamo => reclamo.id === parseInt(reclamoABuscar), 10);
+        console.log("reclamoEncontrado.descripcion", reclamoEncontrado.descripcion)
         if (reclamoEncontrado) {
+            setidReclamo(reclamoEncontrado.id);
             setestadoReclamo(reclamoEncontrado.estado);
             setLugarComun(reclamoEncontrado.lugarComun);
             setDescripcion(reclamoEncontrado.descripcion);
             setmedidasTomadasActual(reclamoEncontrado.medidasTomadas)
-            setimagenes(reclamoEncontrado.imagenes);
         }
     }
 
     const handleNuevoEstadoChange = (event) => {
         setnuevoEstadoReclamo(event.target.value)
     }
-    const handlefiltrarPorEstadoChange = (event) => {
-        //setlistaReclamosPorFiltro([])
-        setfiltrarPorEstadoChange(event.target.value)
+    const handlefiltrarPorEstadoSeleccionado = (event) => {
+        setestadoReclamo("");
+        setLugarComun("");
+        setDescripcion("");
+        setmedidasTomadasActual("");
+        setidReclamo("");
+        const filtroSeleccionado = event.target.value;
+        const listaFiltrada = listaTodosReclamos.filter(reclamo => { return reclamo.estado === filtroSeleccionado && reclamo.tipoReclamo === "COMUN" })
+        setlistaReclamosPorFiltro(listaFiltrada);
+
+        console.log("\n\n\n")
+        console.log("listaTodosReclamos", listaTodosReclamos)
+        console.log("listaReclamosPorFiltro", listaReclamosPorFiltro)
+        console.log("listaFiltrada", listaFiltrada)
+        /* //setlistaReclamosPorFiltro([])
 
         while (listaReclamosPorFiltro.length > 0)
             listaReclamosPorFiltro.pop()
@@ -135,12 +156,17 @@ function ConsultarReclamoComun() {
             }
         }
         //setlistaReclamosPorFiltro(listaTodosReclamos.filter(reclamo => {return reclamo.estadoReclamo == filtrarPorEstado && reclamo.tipoReclamo == "COMUN"}))
-        console.log("listaReclamosPorFiltro", listaReclamosPorFiltro)
+        console.log("listaReclamosPorFiltro", listaReclamosPorFiltro) */
     }
     const handleMedidasTomadasNueva = (event) => {
         setmedidasTomadasNueva(event.target.value)
     }
     const handleTipoBusqueda = (event) => {
+        setestadoReclamo("");
+        setLugarComun("");
+        setDescripcion("");
+        setmedidasTomadasActual("");
+        setidReclamo("");
         settipoBusqueda(event.target.value)
     }
     const handleNumeroDeReclamo = (event) => {
@@ -156,7 +182,8 @@ function ConsultarReclamoComun() {
                 setnuevoEstadoReclamo(reclamoEncontrado.estado);
                 setLugarComun(reclamoEncontrado.lugarComun);
                 setDescripcion(reclamoEncontrado.descripcion);
-                setimagenes(reclamoEncontrado.imagenes);
+                //setimagenes(reclamoEncontrado.imagenes);
+                setidReclamo(reclamoEncontrado.id)
             }
         }
         else {
@@ -201,14 +228,13 @@ function ConsultarReclamoComun() {
                                 <label class="col-sm-2 col-form-label">Filtrar por estado</label>
                                 <div class="col-sm-10">
                                     <div class="custom-select">
-                                        <select class="form-control" id="Nuevo estado" name="Nuevo estado" onChange={handlefiltrarPorEstadoChange}>
+                                        <select class="form-control" id="estado" name="estado" onChange={handlefiltrarPorEstadoSeleccionado}>
                                             <option value="" disabled selected>Seleccione un estado</option>
                                             <option value="NUEVO">Nuevo</option>
                                             <option value="ABIERTO">Abierto</option>
                                             <option value="EN_PROCESO">En proceso</option>
                                             <option value="DESESTIMADO">Desestimado</option>
                                             <option value="ANULADO">Anulado</option>
-                                            <option value="DESESTIMADO">Desestimado</option>
                                         </select>
                                     </div>
                                 </div>
@@ -233,8 +259,16 @@ function ConsultarReclamoComun() {
                                 <label class="col-sm-2 col-form-label">Lista de reclamos</label>
                                 <div class="col-sm-10">
                                     <div class="custom-select">
-                                        <select class="form-control" id="lugarComun" name="lugarComun" onChange={handlefiltrarPorEstadoChange}>
-                                            <option value="" disabled selected>Seleccione un reclamo</option>
+                                        <select
+                                            class="form-control"
+                                            id="lugarComun"
+                                            name="lugarComun"
+                                            onChange={handleReclamoFiltradosSeleccionado}
+                                            value={reclamoSeleccionado || ""}
+                                        >
+                                            <option value="" disabled>
+                                                {reclamoSeleccionado ? "Reclamo seleccionado" : "Seleccione un reclamo"}
+                                            </option>
                                             {listaReclamosPorFiltro.map((reclamo, index) => (
                                                 <option key={index} value={reclamo.id}>
                                                     {reclamo.id}
@@ -245,6 +279,17 @@ function ConsultarReclamoComun() {
                                 </div>
                             </div>
                         )}
+                        <p></p>
+
+                        <div class="form-group row">
+                            <label for="nombre_usuario" class="col-sm-2 col-form-label">ID Reclamo común</label>
+                            <div class="col-sm-10">
+                                <input
+                                    type="text" class="form-control" id="estadoReclamo" aria-describedby="estadoReclamo" placeholder="" value={idReclamo} readonly
+                                />
+                            </div>
+                        </div>
+
                         <p></p>
 
                         <div class="form-group row">
@@ -382,7 +427,7 @@ function ConsultarReclamoComun() {
                                 <label class="col-sm-2 col-form-label">Filtrar por estado</label>
                                 <div class="col-sm-10">
                                     <div class="custom-select">
-                                        <select class="form-control" id="Nuevo estado" name="Nuevo estado" onChange={handlefiltrarPorEstadoChange}>
+                                        <select class="form-control" id="Nuevo estado" name="Nuevo estado" onChange={handlefiltrarPorEstadoSeleccionado}>
                                             <option value="" disabled selected>Seleccione un estado</option>
                                             <option value="nuevo">Nuevo</option>
                                             <option value="abierto">Abierto</option>
@@ -414,9 +459,9 @@ function ConsultarReclamoComun() {
                                 <label class="col-sm-2 col-form-label">Reclamos</label>
                                 <div class="col-sm-10">
                                     <div class="custom-select">
-                                        <select class="form-control" id="lugarComun" name="lugarComun" onChange={handleReclamoFiltrado}>
+                                        <select class="form-control" id="lugarComun" name="lugarComun" onChange={handleReclamoFiltradosSeleccionado}>
                                             <option value="" disabled selected>Seleccione un reclamo</option>
-                                            {setlistaTodosReclamos.map((reclamo, index) => (
+                                            {listaReclamosPorFiltro.map((reclamo, index) => (
                                                 <option key={index} value={reclamo.numeroReclamo}>
                                                     {reclamo.numeroReclamo}
                                                 </option>
