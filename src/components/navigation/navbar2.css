@@ -1,0 +1,14 @@
+
+  /* styles.css */
+
+/* Estilo para el texto dentro del menú desplegable */
+.text-primary-custom {
+    color: blue !important; /* !important para asegurar que se aplique */
+    text-decoration: none !important; /* Para quitar el subrayado */
+  }
+  
+  /* Cambio de color al pasar el ratón sobre los elementos del menú desplegable */
+  .text-primary-custom:hover {
+    background-color: rgba(0, 0, 139, 0.179); /* Color de fondo oscuro al pasar el ratón */
+  }
+  

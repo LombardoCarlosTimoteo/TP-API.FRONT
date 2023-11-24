@@ -22,7 +22,9 @@ function ConsultarReclamoComun() {
     const [medidasTomadasNueva, setmedidasTomadasNueva,] = useState("");
     const [listaTodosReclamos, setlistaTodosReclamos,] = useState([]);
     const [idReclamo, setidReclamo,] = useState([]);
+    const [nuevoEstadoSeleccionado, setNuevoEstadoSeleccionado,] = useState([]);
     const reclamoSeleccionado = "";
+    const estadoNuevoSeleccionado = "";
 
     useEffect(() => {
         setlistaTodosReclamos(reclamos)
@@ -92,7 +94,7 @@ function ConsultarReclamoComun() {
         setimagenes(imagenes);
     };
 
-    const handleSubmit = (event) => {
+    const handleRealizarCambios = (event) => {
         event.preventDefault();
         if (userData.nombre_usuario === "") alert("No has iniciado sesión")
         else {
@@ -107,6 +109,8 @@ function ConsultarReclamoComun() {
             }
             if (medidasTomadasNueva !== "") setmedidasTomadasActual(medidasTomadasNueva)
         }
+        setnuevoEstadoReclamo("")
+        setmedidasTomadasNueva("")
     }
 
     const handleReclamoFiltradosSeleccionado = (event) => {
@@ -167,23 +171,39 @@ function ConsultarReclamoComun() {
         setDescripcion("");
         setmedidasTomadasActual("");
         setidReclamo("");
+        setnuevoEstadoReclamo("");
+        setmedidasTomadasNueva("");
         settipoBusqueda(event.target.value)
     }
     const handleNumeroDeReclamo = (event) => {
         setnumeroDeReclamo(event.target.value)
+    }
+    const handleNuevoEstadoSeleccionado = (event) => {
+        setNuevoEstadoSeleccionado(event.target.value)
+        setnuevoEstadoReclamo(event.target.value)
     }
     const handleEliminarReclamo = (event) => {
         console.log("eliminar el reclamo")
     }
     const handleRealizarBusqueda = (event) => {
         if (tipoBusqueda === "busquedaPorNumeroReclamo") {
-            const reclamoEncontrado = listaReclamosComunes.find(reclamo => reclamo.numero_reclamo === numeroDeReclamo);
+            const reclamoEncontrado = listaTodosReclamos.find(reclamo => { return reclamo.id === parseInt(numeroDeReclamo, 10) && reclamo.tipoReclamo === "COMUN" })
             if (reclamoEncontrado) {
-                setnuevoEstadoReclamo(reclamoEncontrado.estado);
+                setestadoReclamo(reclamoEncontrado.estado);
                 setLugarComun(reclamoEncontrado.lugarComun);
                 setDescripcion(reclamoEncontrado.descripcion);
                 //setimagenes(reclamoEncontrado.imagenes);
                 setidReclamo(reclamoEncontrado.id)
+                setmedidasTomadasActual(reclamoEncontrado.medidasTomadas)
+            }
+            else{
+                alert("No existe el reclamo buscado")
+                setestadoReclamo("");
+                setLugarComun("");
+                setDescripcion("");
+                //setimagenes(reclamoEncontrado.imagenes);
+                setidReclamo("");
+                setmedidasTomadasActual("");
             }
         }
         else {
@@ -202,8 +222,8 @@ function ConsultarReclamoComun() {
             )}
             {userData.tipoUsuario === "ADMIN" && (
                 <div>
-                    <form class="mx-auto" onSubmit={handleSubmit}>
-                        <h1>Consultar reclamo común siendo admin</h1>
+                    <form class="mx-auto" onSubmit={handleRealizarCambios}>
+                        <h1>Consultar reclamo común</h1>
 
                         <p></p>
                         <div class="form-group row">
@@ -354,24 +374,46 @@ function ConsultarReclamoComun() {
 
                         <p></p>
 
-                        <div class="form-group row">
+
+                            <div class="form-group row">
                             <label class="col-sm-2 col-form-label">Nuevo estado</label>
-                            <div class="col-sm-10">
-                                <div class="custom-select">
-                                    <select class="form-control" id="Nuevo estado" name="Nuevo estado" onChange={handleNuevoEstadoChange}>
-                                        <option value="" disabled selected>Seleccione un estado</option>
-                                        <option value="nuevo">Nuevo</option>
-                                        <option value="abierto">Abierto</option>
-                                        <option value="enProceso">En proceso</option>
-                                        <option value="desestimado">Desestimado</option>
-                                        <option value="anulado">Anulado</option>
-                                        <option value="desestimado">Desestimado</option>
-                                    </select>
+                                <div class="col-sm-10">
+                                    <div class="custom-select">
+                                        <select
+                                            class="form-control"
+                                            id="lugarComun"
+                                            name="lugarComun"
+                                            onChange={handleNuevoEstadoSeleccionado}
+                                            value={estadoNuevoSeleccionado || ""}
+                                        >
+                                            <option value="" disabled>
+                                                {estadoNuevoSeleccionado ? "Nuevo estado seleccionado" : "Seleccione un nuevo estado"}
+                                            </option>
+                                                <option value="" disabled selected>Seleccione un estado</option>
+                                                <option value="NUEVO">Nuevo</option>
+                                                <option value="ABIERTO">Abierto</option>
+                                                <option value="EN_PROCESO">En proceso</option>
+                                                <option value="DESESTIMADO">Desestimado</option>
+                                                <option value="ANULADO">Anulado</option>
+                                           
+                                        </select>
+                                    </div>
                                 </div>
+                            </div>
+                        
+                        <p></p>
+
+                        <div class="form-group row">
+                            <label for="nombre_usuario" class="col-sm-2 col-form-label">Nuevo estado seleccionado</label>
+                            <div class="col-sm-10">
+                                <input
+                                    type="text" class="form-control" id="estadoReclamo" aria-describedby="estadoReclamo" placeholder="" value={nuevoEstadoReclamo} readonly
+                                />
                             </div>
                         </div>
 
                         <p></p>
+
 
                         <div class="form-group row">
                             <label for="descripcionReclamo" class="col-sm-2 col-form-label">Medidas tomadas</label>
@@ -389,7 +431,7 @@ function ConsultarReclamoComun() {
                             <div class="col-sm-1"></div>
                             <div className="col-sm-10 d-flex justify-content-center">
                                 {tipoBusqueda === "busquedaPorNumeroReclamo" && (<button onClick={handleRealizarBusqueda} className="mx-5">Realizar búsqueda</button>)}
-                                <button type="submit" className="mx-5">Realizar cambios</button>
+                                <button onClick={handleRealizarCambios}  className="mx-5">Realizar cambios</button>
                                 <button onClick={handleEliminarReclamo} className="mx-5">Eliminar reclamo común</button>
                             </div>
                         </div>
@@ -397,153 +439,181 @@ function ConsultarReclamoComun() {
                 </div>
             )}
 
+
+
+
+
+
+
+
+
+
             {(userData.tipoUsuario === "INQUILINO" || userData.tipoUsuario === "DUENIO") && (
-                <div>
+               <div>
+               <form class="mx-auto" onSubmit={handleRealizarCambios}>
+                   <h1>Consultar reclamo común</h1>
 
-                    <form class="mx-auto" onSubmit={handleSubmit}>
-                        <h1>Consultar reclamo siendo iniqulino o dueño</h1>
+                   <p></p>
+                   <div class="form-group row">
+                       <label for="tipoUsuario" class="col-sm-2 col-form-label">Tipo de búsqueda</label>
 
-                        <p></p>
+                       <div class="col-sm-10">
+                           <div class="form-check">
+                               <input class="form-check-input" type="radio" name="tipoUsuario" id="tipoUsuario1" value="busquedaPorNumeroReclamo" onChange={handleTipoBusqueda} />
+                               <label class="form-check-label" for="tipoUsuario1">Por número de reclamo</label>
+                           </div>
+                           <div class="form-check">
+                               <input class="form-check-input" type="radio" name="tipoUsuario" id="tipoUsuario2" value="busquedaPorEstado" onChange={handleTipoBusqueda} />
+                               <label class="form-check-label" for="tipoUsuario2">Por estado de reclamo</label>
+                           </div>
+                       </div>
+                   </div>
 
-                        <div class="form-group row">
-                            <label for="tipoUsuario" class="col-sm-2 col-form-label">Tipo de búsqueda</label>
+                   <p></p>
 
-                            <div class="col-sm-10">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="tipoUsuario" id="tipoUsuario1" value="busquedaPorNumeroReclamo" onChange={handleTipoBusqueda} />
-                                    <label class="form-check-label" for="tipoUsuario1">Por número de reclamo</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="tipoUsuario" id="tipoUsuario2" value="busquedaPorEstado" onChange={handleTipoBusqueda} />
-                                    <label class="form-check-label" for="tipoUsuario2">Por estado de reclamo</label>
-                                </div>
-                            </div>
-                        </div>
+                   {tipoBusqueda === "busquedaPorEstado" && (
+                       <div class="form-group row">
+                           <label class="col-sm-2 col-form-label">Filtrar por estado</label>
+                           <div class="col-sm-10">
+                               <div class="custom-select">
+                                   <select class="form-control" id="estado" name="estado" onChange={handlefiltrarPorEstadoSeleccionado}>
+                                       <option value="" disabled selected>Seleccione un estado</option>
+                                       <option value="NUEVO">Nuevo</option>
+                                       <option value="ABIERTO">Abierto</option>
+                                       <option value="EN_PROCESO">En proceso</option>
+                                       <option value="DESESTIMADO">Desestimado</option>
+                                       <option value="ANULADO">Anulado</option>
+                                   </select>
+                               </div>
+                           </div>
+                       </div>
+                   )}
 
-                        <p></p>
+                   {tipoBusqueda === "busquedaPorNumeroReclamo" && (
+                       <div class="form-group row">
+                           <label for="nombre_usuario" class="col-sm-2 col-form-label">Numero de reclamo</label>
+                           <div class="col-sm-10">
+                               <input
+                                   type="text" class="form-control" id="nombre_usuario" aria-describedby="nombre_usuario" placeholder="Ingrese el número de reclamo"
+                                   onChange={handleNumeroDeReclamo}
+                                   value={numeroDeReclamo} />
+                           </div>
+                       </div>
+                   )}
+                   <p></p>
 
-                        {tipoBusqueda === "busquedaPorEstado" && (
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Filtrar por estado</label>
-                                <div class="col-sm-10">
-                                    <div class="custom-select">
-                                        <select class="form-control" id="Nuevo estado" name="Nuevo estado" onChange={handlefiltrarPorEstadoSeleccionado}>
-                                            <option value="" disabled selected>Seleccione un estado</option>
-                                            <option value="nuevo">Nuevo</option>
-                                            <option value="abierto">Abierto</option>
-                                            <option value="enProceso">En proceso</option>
-                                            <option value="desestimado">Desestimado</option>
-                                            <option value="anulado">Anulado</option>
-                                            <option value="desestimado">Desestimado</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                   {tipoBusqueda === "busquedaPorEstado" && (
+                       <div class="form-group row">
+                           <label class="col-sm-2 col-form-label">Lista de reclamos</label>
+                           <div class="col-sm-10">
+                               <div class="custom-select">
+                                   <select
+                                       class="form-control"
+                                       id="lugarComun"
+                                       name="lugarComun"
+                                       onChange={handleReclamoFiltradosSeleccionado}
+                                       value={reclamoSeleccionado || ""}
+                                   >
+                                       <option value="" disabled>
+                                           {reclamoSeleccionado ? "Reclamo seleccionado" : "Seleccione un reclamo"}
+                                       </option>
+                                       {listaReclamosPorFiltro.map((reclamo, index) => (
+                                           <option key={index} value={reclamo.id}>
+                                               {reclamo.id}
+                                           </option>
+                                       ))}
+                                   </select>
+                               </div>
+                           </div>
+                       </div>
+                   )}
+                   <p></p>
 
-                        {tipoBusqueda === "busquedaPorNumeroReclamo" && (
-                            <div class="form-group row">
-                                <label for="nombre_usuario" class="col-sm-2 col-form-label">Numero de reclamo</label>
-                                <div class="col-sm-10">
-                                    <input
-                                        type="text" class="form-control" id="nombre_usuario" aria-describedby="nombre_usuario" placeholder="Ingrese el número de reclamo"
-                                        onChange={handleNumeroDeReclamo}
-                                        value={numeroDeReclamo} />
-                                </div>
-                            </div>
-                        )}
-                        <p></p>
+                   <div class="form-group row">
+                       <label for="nombre_usuario" class="col-sm-2 col-form-label">ID Reclamo común</label>
+                       <div class="col-sm-10">
+                           <input
+                               type="text" class="form-control" id="estadoReclamo" aria-describedby="estadoReclamo" placeholder="" value={idReclamo} readonly
+                           />
+                       </div>
+                   </div>
 
-                        {tipoBusqueda === "busquedaPorEstado" && (
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Reclamos</label>
-                                <div class="col-sm-10">
-                                    <div class="custom-select">
-                                        <select class="form-control" id="lugarComun" name="lugarComun" onChange={handleReclamoFiltradosSeleccionado}>
-                                            <option value="" disabled selected>Seleccione un reclamo</option>
-                                            {listaReclamosPorFiltro.map((reclamo, index) => (
-                                                <option key={index} value={reclamo.numeroReclamo}>
-                                                    {reclamo.numeroReclamo}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                        <p></p>
+                   <p></p>
 
-                        <div class="form-group row">
-                            <label for="nombre_usuario" class="col-sm-2 col-form-label">Estado</label>
-                            <div class="col-sm-10">
-                                <input
-                                    type="text" class="form-control" id="lugarComun" aria-describedby="lugarComun" placeholder="" value={estadoReclamo} readonly
-                                />
-                            </div>
-                        </div>
+                   <div class="form-group row">
+                       <label for="nombre_usuario" class="col-sm-2 col-form-label">Estado actual</label>
+                       <div class="col-sm-10">
+                           <input
+                               type="text" class="form-control" id="estadoReclamo" aria-describedby="estadoReclamo" placeholder="" value={estadoReclamo} readonly
+                           />
+                       </div>
+                   </div>
 
-                        <p></p>
+                   <p></p>
 
-                        <div class="form-group row">
-                            <label for="nombre_usuario" class="col-sm-2 col-form-label">Lugar común</label>
-                            <div class="col-sm-10">
-                                <input
-                                    type="text" class="form-control" id="lugarComun" aria-describedby="lugarComun" placeholder="" value={lugarComun} readonly
-                                />
-                            </div>
-                        </div>
+                   <div class="form-group row">
+                       <label for="nombre_usuario" class="col-sm-2 col-form-label">Lugar común</label>
+                       <div class="col-sm-10">
+                           <input
+                               type="text" class="form-control" id="lugarComun" aria-describedby="lugarComun" placeholder="" value={lugarComun} readonly
+                           />
+                       </div>
+                   </div>
 
-                        <p></p>
+                   <p></p>
 
-                        <div class="form-group row">
-                            <label for="descripcionReclamo" class="col-sm-2 col-form-label">Descripción</label>
-                            <div class="col-sm-10">
-                                <textarea class="form-control" id="descripcionReclamo" rows="3"
-                                    maxLength="200"
-                                    readOnly
-                                    value={descripcion}></textarea>
-                            </div>
-                        </div>
+                   <div class="form-group row">
+                       <label for="descripcionReclamo" class="col-sm-2 col-form-label">Descripción</label>
+                       <div class="col-sm-10">
+                           <textarea class="form-control" id="descripcionReclamo" rows="3"
+                               maxLength="200"
+                               readOnly
+                               value={descripcion}></textarea>
+                       </div>
+                   </div>
 
-                        <p></p>
+                   <p></p>
+
+                   <div class="form-group row">
+                       <label for="descripcionReclamo" class="col-sm-2 col-form-label">Medidas Tomadas</label>
+                       <div class="col-sm-10">
+                           <textarea class="form-control" id="descripcionReclamo" rows="3"
+                               maxLength="200"
+                               readOnly
+                               value={medidasTomadasActual}></textarea>
+                       </div>
+                   </div>
+
+                   <p></p>
+
+                   <div class="form-group row">
+                       <label for="adjuntarImagenes" class="col-sm-2 col-form-label">Imágenes</label>
+                       <div class="col-sm-10">
+                           <div class="custom-file">
+                               <p></p>
+                               <div>
+                                   {imagenes.map((imagen, index) => (
+                                       <img key={index} src={imagen} alt={`Imagen ${index}`} width="100" />
+                                   ))}
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+
+                   <p></p>
 
 
-                        <div class="form-group row">
-                            <label for="adjuntarImagenes" class="col-sm-2 col-form-label">Imágenes</label>
-                            <div class="col-sm-10">
-                                <div class="custom-file">
-                                    <p></p>
-                                    <div>
-                                        {imagenes.map((imagen, index) => (
-                                            <img key={index} src={imagen} alt={`Imagen ${index}`} width="100" />
-                                        ))}
-                                        <p></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+             
 
-                        <p></p>
-
-                        <div class="form-group row">
-                            <label for="descripcionReclamo" class="col-sm-2 col-form-label">Medidas Tomadas</label>
-                            <div class="col-sm-10">
-                                <textarea class="form-control" id="descripcionReclamo" rows="3"
-                                    maxLength="200"
-                                    readOnly
-                                    value={medidasTomadasActual}></textarea>
-                            </div>
-                        </div>
-                        <p></p>
-
-                        <div class="form-group row">
-                            <div class="col-sm-2"></div>
-                            <div class="col-sm-10">
-                                {tipoBusqueda === "busquedaPorNumeroReclamo" && (<button onClick={handleRealizarBusqueda} className="mx-5">Realizar búsqueda</button>)}
-                            </div>
-                        </div>
-                    </form>
-                </div>
+                   <div class="form-group row">
+                       <div class="col-sm-1"></div>
+                       <div className="col-sm-10 d-flex justify-content-center">
+                           {tipoBusqueda === "busquedaPorNumeroReclamo" && (<button onClick={handleRealizarBusqueda} className="mx-5">Realizar búsqueda</button>)}
+                           
+                       </div>
+                   </div>
+               </form>
+           </div>
             )}
         </div>
     );
