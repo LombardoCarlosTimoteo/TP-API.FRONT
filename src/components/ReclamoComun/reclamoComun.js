@@ -25,9 +25,9 @@ function ReclamoComun() {
     const imagenes = [];
     for (let i = 0; i < archivos.length; i++) {
       var imagen = (URL.createObjectURL(archivos[i]));
+      console.log("archivos[i]",archivos[i])
 /*       //blobcleanBlobURL(imagen)
       imagen = imagen.toString()
-      console.log(imagen)
       imagenes.push(imagen.substring(5)); */
       imagenes.push(URL.createObjectURL(archivos[i]));
     }
