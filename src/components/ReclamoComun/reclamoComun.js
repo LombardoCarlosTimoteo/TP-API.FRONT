@@ -32,6 +32,7 @@ function ReclamoComun() {
       imagenes.push(URL.createObjectURL(archivos[i]));
     }
     setimagenesSeleccionadas(imagenes);
+    console.log("imagenesSeleccionadas",imagenesSeleccionadas)
   };
 
 /*   const handleSubmit = (event) => {
@@ -67,12 +68,14 @@ function ReclamoComun() {
    } */
     const handleSubmit = async (event) => {
       event.preventDefault();
+      
       if (userData.nombre_usuario === "") {
         alert("Debes iniciar sesión");
       } else {
         try {
           var URL = "http://localhost:8080/api/reclamos";
           var data = {
+            //"direccionEdificio": direccionEdificio.toLowerCase(),
             "idEdificio": userData.idEdificio,
             "lugarComun": lugarComun,
             "descripcion": descripcion,

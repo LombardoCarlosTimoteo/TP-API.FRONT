@@ -47,6 +47,7 @@ function ReclamoParticular() {
             var URL = "http://localhost:8080/api/reclamos";
             var data = {
               "idEdificio": userData.idEdificio,
+              //"direccionEdificio": direccionEdificio.toLowerCase(), 
               //"departamento": userData.idDepto,
               "descripcion": descripcion,
               //"imagenes": imagenesSeleccionadas
@@ -107,7 +108,7 @@ function ReclamoParticular() {
                         <p></p>
 
                         <div class="form-group row">
-                            <label for="direccionEdificio" class="col-sm-2 col-form-label">ID edificio usuario</label>
+                            <label for="direccionEdificio" class="col-sm-2 col-form-label">Dirección edificio</label>
                             <div class="col-sm-10">
                                 <input type="text" class="form-control" id="direccionEdificio" aria-describedby="direccionEdificio" placeholder="Ingrese la dirección del edificio" readOnly
                                     onChange={handledireccionEdificio}

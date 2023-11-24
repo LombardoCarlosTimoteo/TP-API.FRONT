@@ -1,0 +1,37 @@
+[
+    {
+        "id":1,
+        "estado":"EN_PROCESO",
+        "descripcion":"descripcion1",
+        "medidasTomadas":"medidasTomadas1",
+        "lugarComun":"SUM",
+        "tipoReclamo": "COMUN"
+        
+    },
+    {
+        "id":2,
+        "estado":"EN_PROCESO",
+        "descripcion":"descripcion",
+        "medidasTomadas":"medidasTomadas2",
+        "lugarComun":"RECEPCION",
+        "tipoReclamo": "COMUN"
+    },
+    {
+        "id":3,
+        "estado":"NUEVO",
+        "descripcion":"descripcion3",
+        "medidasTomadas":"medidasTomadas3",
+        "lugarComun":"PILETA",
+        "tipoReclamo": "COMUN"
+    },
+    {
+        "id":4,
+        "estado":"NUEVO",
+        "descripcion":"descripcion3",
+        "medidasTomadas":"medidasTomadas3",
+        "piso":"7",
+        "unidad":"A",
+        "direccionEdificio":"aaa 123",
+        "tipoReclamo": "PARTICULAR"
+    }
+]
