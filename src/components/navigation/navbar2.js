@@ -88,7 +88,7 @@ const NavBar2 = () => {
 
             {userData.nombre_usuario !== "" && (
               <NavDropdown.Item className="text-primary-custom">
-              <Link to="/registrarDepartamentos" className="nav-link1 text-primary-custom">Consultar</Link>
+              <Link to="/consultarDepartamentos" className="nav-link1 text-primary-custom">Consultar</Link>
               </NavDropdown.Item>
             )}
           </NavDropdown>

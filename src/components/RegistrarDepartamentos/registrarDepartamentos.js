@@ -25,7 +25,10 @@ function RegistrarDepartamentos() {
     const handleSubmit = (event) => {
         event.preventDefault();
         if (userData.nombre_usuario === "") alert("No has iniciado sesión")
-        else if (userData.tipoUsuario === "ADMIN") setdatosCorrectos(true);
+        else if (userData.tipoUsuario === "ADMIN") {
+            //crear departamento aca
+            setdatosCorrectos(true);
+        }
         else alert("No tienes permisos de administrador")
     }
 
@@ -66,7 +69,7 @@ function RegistrarDepartamentos() {
                 </div>) :
                 (
                     <form class="mx-auto" onSubmit={handleSubmit}>
-                        <h1>Formulario consultar departamento</h1>
+                        <h1>Formulario registrar departamento</h1>
 
                         <p></p>
 
@@ -84,7 +87,7 @@ function RegistrarDepartamentos() {
                         <div class="form-group row">
                             <label for="Piso" class="col-sm-2 col-form-label">Piso</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="Piso" aria-describedby="Piso" placeholder="Ingrese el núero piso"
+                                <input type="text" class="form-control" id="Piso" aria-describedby="Piso" placeholder="Ingrese el piso"
                                     onChange={handlePiso}
                                     value={piso} />
                             </div>
@@ -106,7 +109,7 @@ function RegistrarDepartamentos() {
                         <div class="form-group row">
                             <label for="Departamento" class="col-sm-2 col-form-label">DNI dueño</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="Departamento" aria-describedby="Departamento" placeholder="Ingrese el nombre de la unidad"
+                                <input type="text" class="form-control" id="Departamento" aria-describedby="Departamento" placeholder="Ingrese el DNI del dueño"
                                     onChange={handledniDueño}
                                     value={dniDueño} />
                             </div>
@@ -133,7 +136,7 @@ function RegistrarDepartamentos() {
                             <div class="form-group row">
                                 <label for="Departamento" class="col-sm-2 col-form-label">DNI inquilino</label>
                                 <div class="col-sm-10">
-                                    <input type="text" class="form-control" id="Departamento" aria-describedby="Departamento" placeholder="Ingrese el nombre de la unidad"
+                                    <input type="text" class="form-control" id="Departamento" aria-describedby="Departamento" placeholder="Ingrese el DNI del inquilino"
                                         onChange={handledniInquilino}
                                         value={dniInquilino} />
                                 </div>
@@ -146,7 +149,6 @@ function RegistrarDepartamentos() {
                             <div class="col-sm-1"></div>
                             <div className="col-sm-10 d-flex justify-content-center">
                                 <button type="submit" className="mx-5">Registrar departamento</button>
-                                <button onClick={handleEliminarDepartamento} className="mx-5">Eliminar Departamento</button>
                             </div>
                         </div>
                     </form>

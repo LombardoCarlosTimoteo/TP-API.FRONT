@@ -17,9 +17,12 @@ function ConsultarEdificios() {
     const [nuevaDireccion, setnuevaDireccion] = useState("");
     const { userData, setUserData } = useContext(MyContext)
 
-    const [edificios, setEdificios] = useState([]); //lista de todos los edificios
+    const [listaTodosEdificios, setlistaTodosEdificios] = useState([]); //lista de todos los edificios
     const [edificioABuscar, setedificioABuscar] = useState('')
 
+    useEffect(() => {
+        setlistaTodosEdificios(edificiosData)
+    })
     //aca hacer la carga de todos los jsons
     useEffect(() => {
         if(userData.tipoUsuario === "ADMIN"){
@@ -41,7 +44,7 @@ function ConsultarEdificios() {
                 return response.json()
             })
             .then(response => {
-                setEdificios(response)
+                setlistaTodosEdificios(response)
             })
             .catch(error => console.log("Error: ", error))
         }
@@ -105,12 +108,13 @@ function ConsultarEdificios() {
     }
 
     const handleEdificioChange = (event) => {
-        const nombreEdificioABuscar = event.target.value;
-        const edificioEncontrado = edificios.find(edificio => edificio.id === parseInt(nombreEdificioABuscar,10));
+        const idEdificioABuscar = event.target.value;
+        const edificioEncontrado = listaTodosEdificios.find(edificio => edificio.id === parseInt(idEdificioABuscar,10));
+        console.log(idEdificioABuscar)
 
         if (edificioEncontrado) {
-            console.log("aaaa:", nombreEdificioABuscar);
-            setedificioABuscar(nombreEdificioABuscar);
+            console.log("aaaa:", idEdificioABuscar);
+            setedificioABuscar(idEdificioABuscar);
             setcantidadPisos(edificioEncontrado.pisos);
             setcantidadDepartamentos(edificioEncontrado.unidadesXPiso);
             setDireccion(edificioEncontrado.direccion);
@@ -133,12 +137,12 @@ function ConsultarEdificios() {
                             <label class="col-sm-2 col-form-label">Edificios</label>
                             <div class="col-sm-10">
                                 <div class="custom-select">
-                                    <select class="form-control" id="lugarComun" name="lugarComun" onChange={handleEdificioChange}>
+                                    <select class="form-control" id="lugarComun" name="lugarComun" onChange={handleEdificioChange} >
                                         <option value="" disabled selected>Seleccione un edificio</option>
 
-                                        {edificios.map((edificio, index) => (
-                                            <option key={index} value={edificio.id} onChange={handleEdificioChange}>
-                                                {edificio.id}
+                                        {listaTodosEdificios.map((edificio, index) => (
+                                            <option key={index} value={edificio.id}>
+                                                {edificio.direccion}
                                             </option>
                                         ))}
                                     </select>

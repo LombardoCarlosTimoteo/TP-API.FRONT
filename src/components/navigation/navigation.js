@@ -14,6 +14,7 @@ import ConsultarUsuarios from "../consultarUsuarios/consultarUsuarios";
 import ConsultarReclamoComun from "../consultarReclamoComun/consultarReclamoComun";
 import ConsultarReclamoParticular from "../consultarReclamoParticular/consultarReclamoParticular";
 import RegistrarDepartamentos from "../RegistrarDepartamentos/registrarDepartamentos";
+import ConsultarDepartamentos from "../consultarDepartamento/consultarDepartamento";
 
 function Navigation() {
     return (
@@ -32,6 +33,7 @@ function Navigation() {
                     <Route path="/consultarReclamoParticular" element={<ConsultarReclamoParticular />}></Route>
                     <Route path="/consultarUsuarios" element={<ConsultarUsuarios />}></Route>
                     <Route path="/registrarDepartamentos" element={<RegistrarDepartamentos />}></Route>
+                    <Route path="/consultarDepartamentos" element={<ConsultarDepartamentos />}></Route>
                 </Routes>
             </div>
         </Router>
