@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import './consultarDepartamento.css';
 import { useContext } from "react";
 import MyContext from "../ReactContext/myContext";
+import edificiosData from './edificios.json';
+import { useEffect } from 'react';
 
 function ConsultarDepartamentos() {
     const [piso, setPiso] = useState("")
@@ -12,6 +14,7 @@ function ConsultarDepartamentos() {
     const [estaAlquilado, setestaAlquilado] = useState('')
     const [datosCorrectos, setdatosCorrectos] = useState(false);
     const { userData, setUserData } = useContext(MyContext)
+    const [listaTodosEdificios, setlistaTodosEdificios] = useState([]); //lista de todos los edificios
     const [listaTodosDepartamentosDadoEdificio, setlistaTodosDepartamentosDadoEdificio ] = useState([])
 
     const [pisoNuevo, setpisoNuevo] = useState("")
@@ -20,6 +23,13 @@ function ConsultarDepartamentos() {
     const [dniDueñoNuevo, setdniDueñoNuevo] = useState('')
     const [dniInquilinoNuevo, setdniInquilinoNuevo] = useState('')
     const [estaAlquiladoNuevo, setestaAlquiladoNuevo] = useState('')
+    const departamentoSeleccionado = "";
+
+
+    useEffect(() => {
+        setlistaTodosEdificios(edificiosData)
+    })
+
 
     const handleOtroDepartamento = (event) => {
         setdatosCorrectos(false);
@@ -36,6 +46,10 @@ function ConsultarDepartamentos() {
         else if (userData.tipoUsuario === "ADMIN") {
             //crear departamento aca
             setdatosCorrectos(true);
+            if (pisoNuevo!=="") setPiso(pisoNuevo)
+            if (departamentoNuevo!=="") setdepartamentoNuevo(departamentoNuevo)
+            if (pisoNuevo!=="") setPiso(pisoNuevo)
+            if (pisoNuevo!=="") setPiso(pisoNuevo)
         }
         else alert("No tienes permisos de administrador")
     }
@@ -45,22 +59,22 @@ function ConsultarDepartamentos() {
     }
 
     const handleNuevoPiso = (event) => {
-        setPiso(event.target.value)
+        setpisoNuevo(event.target.value)
     }
     const handleNuevoDepartamento = (event) => {
-        setDepartamento(event.target.value)
+        setdepartamentoNuevo(event.target.value)
     }
 
     const handleNuevoDniDueño = (event) => {
-        setdniDueño(event.target.value)
+        setdniDueñoNuevo(event.target.value)
     }
 
     const handleNuevoDniInquilino = (event) => {
-        setdniInquilino(event.target.value)
+        setdniInquilinoNuevo(event.target.value)
     }
 
     const handleNuevoEstaAlquilado = (event) => {
-        setestaAlquilado(event.target.value)
+        setestaAlquiladoNuevo(event.target.value)
     }
     const handleEliminarDepartamento = (event) => {
         console.log("eliminar depto")
@@ -68,37 +82,51 @@ function ConsultarDepartamentos() {
 
     const handleDepartamentoSeleccionado = (event) => {
         const idDepartamentoABuscar = event.target.value;
-        const departamentoEncontrado = listaTodosDepartamentosDadoEdificio.find(departamento => departamento.id === parseInt(idDepartamentoABuscar,10));
-        console.log(idDepartamentoABuscar)
+        const departamentoEncontrado = listaTodosDepartamentosDadoEdificio.find(departamento => departamento === idDepartamentoABuscar);
+        console.log("idDepartamentoABuscar",idDepartamentoABuscar)
+        setDepartamento(idDepartamentoABuscar)
 
         if (departamentoEncontrado) {
             console.log("aaaa:", idDepartamentoABuscar);
         }
     }
 
+
+    const handleEdificioChange = (event) => {
+        const idEdificioABuscar = event.target.value;
+        const edificioEncontrado = listaTodosEdificios.find(edificio => edificio.id === parseInt(idEdificioABuscar,10));
+        const departamentos = edificioEncontrado.listaUnidades
+        console.log("departamentos",departamentos)
+        setlistaTodosDepartamentosDadoEdificio(departamentos)
+        console.log("listaTodosDepartamentosDadoEdificio",listaTodosDepartamentosDadoEdificio)
+        
+
+    }
+
     return (
         <div>
-            {datosCorrectos ? (
-                <div className="header">
-
-                    <h1>Departamento registrado</h1>
-
-                    <button onClick={handleOtroDepartamento} className="session-button">Registrar otro departamento</button>
-                </div>) :
-                (
+            
                     <form class="mx-auto" onSubmit={handleSubmit}>
                         <h1>Formulario consultar departamento</h1>
 
                         <p></p>
-
                         <div class="form-group row">
-                            <label for="direccionEdificio" class="col-sm-2 col-form-label">Dirección edificio</label>
+                            <label class="col-sm-2 col-form-label">Edificios</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="direccionEdificio" aria-describedby="direccionEdificio" placeholder="Ingrese la dirección del edificio"
-                                    value={direccionEdificio}
-                                    onChange={handledireccionEdificio} />
+                                <div class="custom-select">
+                                    <select class="form-control" id="lugarComun" name="lugarComun" onChange={handleEdificioChange} >
+                                        <option value="" disabled selected>Seleccione un edificio</option>
+
+                                        {listaTodosEdificios.map((edificio, index) => (
+                                            <option key={index} value={edificio.id}>
+                                                {edificio.direccion}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
                         </div>
+
 
                         <p></p>
 
@@ -106,12 +134,18 @@ function ConsultarDepartamentos() {
                             <label class="col-sm-2 col-form-label">Departamentos</label>
                             <div class="col-sm-10">
                                 <div class="custom-select">
-                                    <select class="form-control" id="lugarComun" name="lugarComun" onChange={handleDepartamentoSeleccionado} >
-                                        <option value="" disabled selected>Seleccione un departamentos</option>
+                                    <select class="form-control" id="lugarComun" name="lugarComun" 
+                                    onChange={handleDepartamentoSeleccionado} 
+                                    value={departamentoSeleccionado || ""}
+                                    >
+                                        <option value="" disabled selected>
+                                        {departamentoSeleccionado ? "Departamento seleccionado" : "Seleccione un Departamento"}
+
+                                        </option>
 
                                         {listaTodosDepartamentosDadoEdificio.map((departamento, index) => (
-                                            <option key={index} value={departamento.id}>
-                                                {departamento.id}
+                                            <option key={index} value={departamento}>
+                                                {departamento}
                                             </option>
                                         ))}
                                     </select>
@@ -227,7 +261,7 @@ function ConsultarDepartamentos() {
 
                         <p></p>
 
-                        {(estaAlquilado === "SI") && (
+                        {(estaAlquiladoNuevo === "SI") && (
                             <div class="form-group row">
                                 <label for="Departamento" class="col-sm-2 col-form-label">Mod DNI inquilino</label>
                                 <div class="col-sm-10">
@@ -243,13 +277,12 @@ function ConsultarDepartamentos() {
                         <div class="form-group row">
                             <div class="col-sm-1"></div>
                             <div className="col-sm-10 d-flex justify-content-center">
-                                <button type="submit" className="mx-5">Registrar departamento</button>
+                                <button type="submit" className="mx-5">Realizar cambios</button>
                                 <button onClick={handleEliminarDepartamento} className="mx-5">Eliminar Departamento</button>
                             </div>
                         </div>
                     </form>
-                )
-            }
+             
         </div >
     );
 }
