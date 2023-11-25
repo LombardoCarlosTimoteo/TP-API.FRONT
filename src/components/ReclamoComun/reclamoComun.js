@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import './formReclamoComun.css';
 import { useContext } from "react";
 import MyContext from "../ReactContext/myContext";
+import { useEffect } from "react";
 
 function ReclamoComun() {
   const [direccionEdificio, setDireccionEdificio] = useState('')
@@ -12,9 +13,12 @@ function ReclamoComun() {
   const { userData, setUserData } = useContext(MyContext)
   const [nroReclamo,setnroReclamo] = useState("")
 
+  useEffect(() => {
+    setDireccionEdificio(userData.direccionEdificio);
+}, []);    
+
   const handleOtroReclamo = (event) => {
     setdatosCorrectos(false);
-    setDireccionEdificio("")
     setLugarComun("")
     setDescripcion("")
     setimagenesSeleccionadas([])
@@ -69,18 +73,21 @@ function ReclamoComun() {
     const handleSubmit = async (event) => {
       event.preventDefault();
       
-      if (userData.nombre_usuario === "") {
-        alert("Debes iniciar sesión");
-      } else {
+      if(lugarComun==="" || descripcion === "") 
+        	alert("No has completado todos los campos"); 
+      else {
         try {
           var URL = "http://localhost:8080/api/reclamos";
           var data = {
             //"direccionEdificio": direccionEdificio.toLowerCase(),
-            "idEdificio": userData.idEdificio,
+            "direccionEdificio":userData.direccionEdificio,
             "lugarComun": lugarComun,
             "descripcion": descripcion,
             //"imagenes": imagenesSeleccionadas,
-            "estadoReclamo": "NUEVO"
+            "tipoReclamo": "COMUN",
+            "estadoReclamo": "NUEVO",
+            "usuarioId": userData.usuarioID
+        
           };
     
           var response = await fetch(URL, {
@@ -93,11 +100,12 @@ function ReclamoComun() {
           });
     
           var responseData = await response.json();
+          
           console.log("descripcion", descripcion);
     
           setnroReclamo(responseData.id);
           setdatosCorrectos(true);
-
+          console.log("responseData",responseData)
           
         } catch (error) {
           console.error("Error:", error);
@@ -127,7 +135,8 @@ function ReclamoComun() {
       {datosCorrectos ? (
         <div className="header">
 
-          <h1>Reclamo común enviado. El numero de reclamo es {nroReclamo}</h1>
+          <h1>Reclamo común enviado. El numero de reclamo es #{nroReclamo}</h1>
+          <h1>Guarde el número de reclamo para consultarlo en un futuro.</h1>
 
           <button onClick={handleOtroReclamo} className="session-button">Realizar otro reclamo común</button>
         </div>
@@ -141,8 +150,7 @@ function ReclamoComun() {
           <div class="form-group row">
             <label for="userData.idEdificio" class="col-sm-2 col-form-label">Dirección edificio</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" id="direccion_edificio" aria-describedby="direccion_edificio" placeholder="Ingrese la dirección del edificio"
-                onChange={handledireccionEdificio}
+              <input type="text" class="form-control" id="direccion_edificio" aria-describedby="direccion_edificio" readOnly
                 value={direccionEdificio} />
             </div>
           </div>

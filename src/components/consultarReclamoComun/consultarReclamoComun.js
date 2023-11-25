@@ -27,64 +27,45 @@ function ConsultarReclamoComun() {
     const reclamoSeleccionado = "";
     const estadoNuevoSeleccionado = "";
 
-    useEffect(() => {
-        setlistaTodosReclamos(reclamos)
-    })
     //si es admin, cargar todos los reclamos en listaReclamosComunes
     //si no, cargar aquellos reclamos que correspondan al edificio del usuario en listaReclamosComunes tambien
+    
     useEffect(() => {
         if (userData.tipoUsuario === "ADMIN") { //si es admin, agarrar todos los reclamos comunes
-
+            
             var URL = "http://localhost:8080/api/reclamos"
-            var token = `Bearer ${userData.token}`// + userData.token
-
+            var token = `Bearer ${userData.token}`
+            
             fetch(URL, {
-
+                
                 headers: new Headers({
                     'Authorization': token,
                 }),
                 method: "GET"
             })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("No se pudo hacer el GET")
-                    }
-                    return response.json()
-                })
-                .then(response => {
-                    //console.log(response)
-                    //JSON.stringify(response)
-                    setlistaTodosReclamos(response);
-                    console.log("listaTodosReclamos", listaTodosReclamos)
-                })
-                .catch(error => console.log("Error: ", error))
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("No se pudo hacer el GET")
+                }
+                return response.json()
+            })
+            .then(response => {
+                setlistaTodosReclamos(response);
+                console.log("listaTodosReclamos", listaTodosReclamos)
+                if (userData.tipoUsuario === "ADMIN"){           
+                    const listaRComunes = listaTodosReclamos.filter(reclamo => { return  reclamo.tipoReclamo === "COMUN"})
+                    setlistaReclamosComunes(listaRComunes);
+                    console.log("listaRComunes",listaRComunes)
+                } 
+                else {           
+                    const listaRComunes = listaTodosReclamos.filter(reclamo => { return  reclamo.tipoReclamo === "COMUN" && reclamo.direccionEdificio === userData.direccionEdificio})
+                    setlistaReclamosComunes(listaRComunes);
+                }
+            })
+            .catch(error => console.log("Error: ", error))
         }
-
-        /*  else if (userData.tipoUsuario === "INQUILINO" || userData.tipoUsuario === "DUENIO") { //si es inquilino o dueño, agarrar los reclamos de su edificio que se encuentra en el context
-             var URL = "http://localhost:8080/api/reclamosComunesDeUsuario/{idEdificio}" //idEdificio esta en el contexto
-             var token = `Bearer ${userData.token}`// + userData.token
-             console.log(token)
-             fetch(URL, {
- 
-                 headers: new Headers({
-                     'Authorization': token,
-                 }),
-                 method: "GET"
-             })
-                 .then(response => {
-                     if (!response.ok) {
-                         throw new Error("No se pudo hacer el GET")
-                     }
-                     return response.json()
-                 })
-                 .then(response => {
-                     JSON.stringify(response)
-                     console.log(response)
-                 })
-                 .catch(error => console.log("Error: ", error))
-         } */
-
-    }, [])
+        
+    }, []) 
 
     const handleFileChange = (event) => {
         const archivos = event.target.files;
@@ -123,11 +104,11 @@ function ConsultarReclamoComun() {
         console.log("reclamoEncontrado.descripcion", reclamoEncontrado.descripcion)
         if (reclamoEncontrado) {
             setidReclamo(reclamoEncontrado.id);
-            setestadoReclamo(reclamoEncontrado.estado);
+            setestadoReclamo(reclamoEncontrado.estadoReclamo);
             setLugarComun(reclamoEncontrado.lugarComun);
             setDescripcion(reclamoEncontrado.descripcion);
             setmedidasTomadasActual(reclamoEncontrado.medidasTomadas)
-            setdireccionEdificio("PONER DIRECCION")
+            setdireccionEdificio(reclamoEncontrado.direccionEdificio)
             //imagenes
         }
     }
@@ -136,38 +117,58 @@ function ConsultarReclamoComun() {
         setnuevoEstadoReclamo(event.target.value)
     }
     const handlefiltrarPorEstadoSeleccionado = (event) => {
+
         setestadoReclamo("");
         setLugarComun("");
         setDescripcion("");
         setmedidasTomadasActual("");
         setidReclamo("");
         const filtroSeleccionado = event.target.value;
-        const listaFiltrada = listaTodosReclamos.filter(reclamo => { return reclamo.estado === filtroSeleccionado && reclamo.tipoReclamo === "COMUN" })
-        setlistaReclamosPorFiltro(listaFiltrada);
+        
+        //ACA BUSCAR TODOS LOS RECLAMOS QUE PERTENEZCAN AL FILTRO SELECCIONADO
+
+        var URL = `http://localhost:8080/api/reclamos/estados/${filtroSeleccionado}`
+        var token = `Bearer ${userData.token}`
+            
+            fetch(URL, {
+                
+                headers: new Headers({
+                    'Authorization': token,
+                }),
+                method: "GET"
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("No se pudo hacer el GET")
+                }
+                return response.json()
+            })
+            .then(response => {
+                //console.log("response: ", response)
+                setlistaReclamosPorFiltro(response);
+                
+                if (userData.tipoUsuario === "ADMIN"){           
+                    const listaRComunes = listaReclamosPorFiltro.filter(reclamo => { return  reclamo.tipoReclamo == "COMUN"})
+                    setlistaReclamosComunes(listaRComunes);
+                    console.log("listaRComunes",listaRComunes)
+                } 
+                else {           
+                    const listaRComunes = listaTodosReclamos.filter(reclamo => { return  reclamo.tipoReclamo == "COMUN" && reclamo.direccionEdificio === userData.direccionEdificio})
+                    setlistaReclamosComunes(listaRComunes);
+                }
+            })
+
+     
 
         console.log("\n\n\n")
         console.log("listaTodosReclamos", listaTodosReclamos)
         console.log("listaReclamosPorFiltro", listaReclamosPorFiltro)
-        console.log("listaFiltrada", listaFiltrada)
-        /* //setlistaReclamosPorFiltro([])
-
-        while (listaReclamosPorFiltro.length > 0)
-            listaReclamosPorFiltro.pop()
-
-        //const lReclamosComunesPorFiltro = listaTodosReclamos.filter(reclamo => reclamo.estadoReclamo === filtrarPorEstado && reclamo.tipoReclamo === "COMUN");
-        console.log("aca adentor todos reclamos", listaTodosReclamos)
-        for (let i = 0; i < listaTodosReclamos.length; i++) {
-            if (listaTodosReclamos[i].estadoReclamo === filtrarPorEstado && listaTodosReclamos[i].tipoReclamo === "COMUN") {
-                console.log(listaTodosReclamos[i])
-                listaReclamosPorFiltro.push(listaTodosReclamos[i])
-            }
-        }
-        //setlistaReclamosPorFiltro(listaTodosReclamos.filter(reclamo => {return reclamo.estadoReclamo == filtrarPorEstado && reclamo.tipoReclamo == "COMUN"}))
-        console.log("listaReclamosPorFiltro", listaReclamosPorFiltro) */
     }
+
     const handleMedidasTomadasNueva = (event) => {
         setmedidasTomadasNueva(event.target.value)
     }
+
     const handleTipoBusqueda = (event) => {
         setestadoReclamo("");
         setLugarComun("");
@@ -178,26 +179,40 @@ function ConsultarReclamoComun() {
         setmedidasTomadasNueva("");
         settipoBusqueda(event.target.value)
     }
+
     const handleNumeroDeReclamo = (event) => {
         setnumeroDeReclamo(event.target.value)
     }
+
     const handleNuevoEstadoSeleccionado = (event) => {
         setNuevoEstadoSeleccionado(event.target.value)
         setnuevoEstadoReclamo(event.target.value)
     }
+
     const handleEliminarReclamo = (event) => {
         console.log("eliminar el reclamo")
     }
+    
     const handleRealizarBusqueda = (event) => {
         if (tipoBusqueda === "busquedaPorNumeroReclamo") {
+            //Que devuelva el reclamo en base al id
+            
+            
+            
+            
+            
+            
+            
+            
             const reclamoEncontrado = listaTodosReclamos.find(reclamo => { return reclamo.id === parseInt(numeroDeReclamo, 10) && reclamo.tipoReclamo === "COMUN" })
             if (reclamoEncontrado) {
-                setestadoReclamo(reclamoEncontrado.estado);
+                setestadoReclamo(reclamoEncontrado.estadoReclamo);
                 setLugarComun(reclamoEncontrado.lugarComun);
                 setDescripcion(reclamoEncontrado.descripcion);
                 //setimagenes(reclamoEncontrado.imagenes);
                 setidReclamo(reclamoEncontrado.id)
                 setmedidasTomadasActual(reclamoEncontrado.medidasTomadas)
+                setdireccionEdificio(reclamoEncontrado.direccionEdificio)
             }
             else{
                 alert("No existe el reclamo buscado")

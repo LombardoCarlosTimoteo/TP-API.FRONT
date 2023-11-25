@@ -5,12 +5,13 @@ const MyContext = createContext();
 
 export const MyProvider = ({ children }) => {
     const [userData, setUserData] = useState({
-        nombre_usuario: "a",
-        tipoUsuario: "ADMIN",
+        nombre_usuario: "",
+        tipoUsuario: "",
         token: "",
-        idEdificio: "",
-        idDepto: "",
-        usuarioID:""
+        usuarioID:"",
+        piso:"",
+        departamento:"",
+        direccionEdificio:""
     });
     const [datosCorrectos, setdatosCorrectos] = useState("");
 

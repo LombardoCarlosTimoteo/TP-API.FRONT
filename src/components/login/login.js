@@ -15,10 +15,9 @@ function Login() {
     
     const handleSubmit = async (event) => {
         event.preventDefault();
-        setdatosCorrectos(true);
 
         try {
-            const loginResponse = await fetch("http://localhost:8080/auth/login", {
+            const loginResponse = await fetch("http://localhost:8080/auth/login", { //TOKEN
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -36,7 +35,7 @@ function Login() {
     
             const token = await loginResponse.text();
     
-            const userLoginResponse = await fetch(`http://localhost:8080/auth/userLogin/${nombreUsuario}`, {
+            const userLoginResponse = await fetch(`http://localhost:8080/auth/userLogin/${nombreUsuario}`, { //USUARIO ID
                 headers: {
                     "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json"
@@ -49,9 +48,9 @@ function Login() {
             }
     
             const userData = await userLoginResponse.json();
-            const userID = userData.usuario.id;
+            const userID = userData.usuarioId;
     
-            const contextResponse = await fetch(`http://localhost:8080/api/context/${userID}`, {
+            const contextResponse = await fetch(`http://localhost:8080/api/context/${userID}`, { //CONTEXT
                 headers: {
                     "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json"
@@ -64,10 +63,10 @@ function Login() {
             }
     
             const contextData = await contextResponse.json();
-            const listaDeptos = contextData.departamentos;
-            console.log(contextData.departamentos)
-            let deptoEncontradoID;
-            for (let i = 0; i < listaDeptos.length; i++) {
+            //const listaDeptos = contextData.departamentos;
+            //console.log(contextData.departamentos)
+            //let deptoEncontradoID;
+            /* for (let i = 0; i < listaDeptos.length; i++) {
                 if(listaDeptos[i].duenio !== null || listaDeptos[i].inquilino !== null){
                     if (listaDeptos[i].duenio.id == parseInt(userID, 10)|| listaDeptos[i].inquilino.id == parseInt(userID, 10)) {
                         deptoEncontradoID = listaDeptos[i].id;
@@ -76,16 +75,17 @@ function Login() {
                         break; // Salimos del bucle una vez que encontramos el departamento
                     }
                 }
-            }
+            } */
     
             setUserData({
                 ...userData,
-                tipoUsuario: userData.usuario.tipoUsuario,
+                tipoUsuario: userData.tipoUsuario,
                 usuarioID: userID,
                 nombre_usuario: userData.username,
                 token: token,
-                idEdificio: contextData.id,
-                idDepto: deptoEncontradoID
+                departamento: contextData.unidadDepartamento,
+                direccionEdificio: contextData.direccionEdificio,
+                piso: contextData.pisoDepartamento
             });
             setdatosCorrectos(true);
         } catch (error) {
@@ -235,7 +235,8 @@ function Login() {
         setContraseña(event.target.value);
     }
     const handleCerrarSesion = (event) => {
-        setUserData({ ...userData, nombre_usuario: "" })
+        setUserData({ ...userData, nombre_usuario: "",tipoUsuario:"", token: "", usuarioID:"",piso:"",departamento:"",direccionEdificio:""})
+ 
         console.log(userData.nombre_usuario)
         setdatosCorrectos(false);
         setNombreUSuario("")

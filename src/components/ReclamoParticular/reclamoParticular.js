@@ -14,8 +14,10 @@ function ReclamoParticular() {
     const [nroReclamo,setnroReclamo] = useState("")
     
     useEffect(() => {
-        setDireccionEdificio(userData.idEdificio)
-        setDepartamento(userData.idDepto)
+        setDireccionEdificio(userData.idEdificio);
+        setDepartamento(userData.departamento);
+        setDireccionEdificio(userData.direccionEdificio);
+        setPiso(userData.piso);
     }, []);    
     
     const handleOtroReclamo = (event) => {
@@ -46,12 +48,15 @@ function ReclamoParticular() {
           try {
             var URL = "http://localhost:8080/api/reclamos";
             var data = {
-              "idEdificio": userData.idEdificio,
-              //"direccionEdificio": direccionEdificio.toLowerCase(), 
-              //"departamento": userData.idDepto,
+              
+              "direccionEdificio": userData.direccionEdificio, 
+              "unidadDepartamento": userData.departamento,
+              "pisoDepartamento": userData.piso,
               "descripcion": descripcion,
               //"imagenes": imagenesSeleccionadas
-              "estadoReclamo": "NUEVO"
+              "tipoReclamo": "PARTICULAR",
+              "estadoReclamo": "NUEVO",
+              "usuarioId": userData.usuarioID
             };
       
             var response = await fetch(URL, {
@@ -98,6 +103,7 @@ function ReclamoParticular() {
                 <div className="header">
 
                     <h1>Reclamo particular enviado. El numero de reclamo es #{nroReclamo}</h1>
+                    <h1>Guarde el número de reclamo para consultarlo en un futuro.</h1>
 
                     <button onClick={handleOtroReclamo} className="session-button">Realizar otro reclamo particular</button>
                 </div>) :
@@ -110,8 +116,7 @@ function ReclamoParticular() {
                         <div class="form-group row">
                             <label for="direccionEdificio" class="col-sm-2 col-form-label">Dirección edificio</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="direccionEdificio" aria-describedby="direccionEdificio" placeholder="Ingrese la dirección del edificio" readOnly
-                                    onChange={handledireccionEdificio}
+                                <input type="text" class="form-control" id="direccionEdificio" aria-describedby="direccionEdificio" readOnly
                                     value={direccionEdificio} />
                             </div>
                         </div>
@@ -121,9 +126,7 @@ function ReclamoParticular() {
                         <div class="form-group row">
                             <label for="Piso" class="col-sm-2 col-form-label">Piso</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="Piso" aria-describedby="Piso" placeholder="Ingrese el piso del edificio"
-                                    onChange={handlePiso}
-                                    value={piso} />
+                                <input type="text" class="form-control" id="Piso" aria-describedby="Piso"  readOnly value={piso} />
                             </div>
                         </div>
                         
@@ -132,8 +135,7 @@ function ReclamoParticular() {
                         <div class="form-group row">
                             <label for="Departamento" class="col-sm-2 col-form-label">Departamento</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="Departamento" aria-describedby="Departamento" placeholder="Ingrese el departamento" readOnly
-                                    onChange={handleDepartamento}
+                                <input type="text" class="form-control" id="Departamento" aria-describedby="Departamento"  readOnly
                                     value={departamento} />
                             </div>
                         </div>
