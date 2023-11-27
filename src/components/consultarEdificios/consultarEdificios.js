@@ -20,9 +20,6 @@ function ConsultarEdificios() {
     const [listaTodosEdificios, setlistaTodosEdificios] = useState([]); //lista de todos los edificios
     const [edificioABuscar, setedificioABuscar] = useState('')
 
-    useEffect(() => {
-        setlistaTodosEdificios(edificiosData)
-    })
     //aca hacer la carga de todos los jsons
     useEffect(() => {
         if(userData.tipoUsuario === "ADMIN"){
@@ -48,70 +45,128 @@ function ConsultarEdificios() {
             })
             .catch(error => console.log("Error: ", error))
         }
-        else if(userData.tipoUsuario === "INQUILINO" || userData.tipoUsuario === "DUENIO"){
-            var URL = `http://localhost:8080/api/edificios/10`  // ${userData.idEdificio}
-            var token = `Bearer ${userData.token}`// + userData.token
-            fetch(URL, {
-                headers: new Headers({
-                    'Authorization': token,
-                    'Content-Type': "application/json",
-                }),
-                method: "GET"
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("No se pudo hacer el GET")
-                }
-                return response.json()
-            })
-            .then(response => {
-                JSON.stringify(response)
-            })
-        }
         
     }, [])
-  
-    
-    const handleSubmit = (event) => {
+
+
+    const handleRealizarCambios = (event) => {
         event.preventDefault();
 
         if (userData.nombre_usuario === "") alert("No has iniciado sesión")
         else {
-            //chequear que el usuario sea admin. si es admin, hacer el setdatoscorrectos
             setdatosCorrectos(true);
             if (nuevaDireccion !== "") {
                 setDireccion(nuevaDireccion)
             }
-            if (nuevacantidadDepartamentos !== "") {
-                setcantidadDepartamentos(nuevacantidadDepartamentos)
-            }
-            if (nuevacantidadPisos !== "") {
-                setcantidadPisos(nuevacantidadPisos)
-            }
             setnuevaDireccion("")
-            setnuevacantidadDepartamentos("")
-            setnuevacantidadPisos("")
-        }
+            var URL = `http://localhost:8080/api/edificios/${edificioABuscar}`
+            var token = `Bearer ${userData.token}`
+            var data = {
+                "direccion": nuevaDireccion.toLowerCase()
+            }
+            fetch(URL, {
+                headers: new Headers({
+                    'Authorization': token,
+                    'Content-Type': "application/json",
+                    
+                }),
+                method: "PUT",
+                body: JSON.stringify(data)
 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("No se pudo hacer el UPDATE")
+                }
+                setDireccion(nuevaDireccion.toLowerCase())
+            })
+            .then(response =>{
+                    var URL = "http://localhost:8080/api/edificios"
+                    var token = `Bearer ${userData.token}`// + userData.token
+                    fetch(URL, {
+                        headers: new Headers({
+                            'Authorization': token,
+                        }),
+                        method: "GET"
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("No se pudo hacer el GET")
+                        }
+                        return response.json()
+                    })
+                    .then(response => {
+                        console.log("LALALALALLA", response)
+                        const r = response
+                        setlistaTodosEdificios(r)
+                    })
+                    .catch(error => console.log("Error: ", error))
+                })
+            .catch(error => console.log("Error: ", error))
+            
+
+        }
+                //
     }
-    const handlenuevaDireccion = (event) => {
+
+    const handlenuevaDireccion = (event) => { 
         setnuevaDireccion(event.target.value)
     }
-    const handlenuevacantidadDepartamentos = (event) => {
-        setnuevacantidadDepartamentos(event.target.value)
-    }
-    const handlenuevacantidadPisos = (event) => {
-        setnuevacantidadPisos(event.target.value)
-    }
+
+ 
     const handleEliminarEdificio = (event) => {
-        console.log("eliminar edificio")
+        event.preventDefault();
+        
+            var URL = `http://localhost:8080/api/edificios/${edificioABuscar}`
+            var token = `Bearer ${userData.token}`
+            fetch(URL, {
+                headers: new Headers({
+                    Authorization: token,
+                    
+                }),
+                method: "DELETE"
+            })
+            .then(response => {
+                alert("Edificio eliminado correctamente")
+            })
+
+            .then(response =>{
+                var URL = "http://localhost:8080/api/edificios"
+                var token = `Bearer ${userData.token}`// + userData.token
+                console.log(token)
+                fetch(URL, {
+                    headers: new Headers({
+                        'Authorization': token,
+                        'Content-Type': "application/json",
+                        
+                    }),
+                    method: "GET"
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("No se pudo hacer el GET")
+                    }
+                    return response.json()
+                })
+                .then(response => {
+                    setlistaTodosEdificios(response)
+                })
+                .catch(error => console.log("Error: ", error))
+            })
+            .catch(error => console.log("Error: ", error))
+        
+    
+    
+    setcantidadDepartamentos("")
+    setcantidadPisos("")
+    setDireccion("")
     }
 
     const handleEdificioChange = (event) => {
         const idEdificioABuscar = event.target.value;
         const edificioEncontrado = listaTodosEdificios.find(edificio => edificio.id === parseInt(idEdificioABuscar,10));
-        console.log(idEdificioABuscar)
-
+        setedificioABuscar(idEdificioABuscar)
+        
         if (edificioEncontrado) {
             console.log("aaaa:", idEdificioABuscar);
             setedificioABuscar(idEdificioABuscar);
@@ -130,7 +185,7 @@ function ConsultarEdificios() {
             )}
             {userData.tipoUsuario === "ADMIN" && (
                 <div>
-                    <form class="mx-auto" onSubmit={handleSubmit}>
+                    <form class="mx-auto" onSubmit={handleRealizarCambios}>
                         <h1>Consultar edificios</h1>
                         <p></p>
                         <div class="form-group row">
@@ -199,31 +254,6 @@ function ConsultarEdificios() {
 
                         <p></p>
 
-                        <div class="form-group row">
-                            <label for="nombre_usuario" class="col-sm-2 col-form-label">Mod cant. pisos</label>
-                            <div class="col-sm-10">
-                                <input
-                                    type="text" class="form-control" id="estadoReclamo" aria-describedby="estadoReclamo" placeholder="Ingrese la camtidad de pisos del edificio nuevamente para modificar"
-                                    value={nuevacantidadPisos}
-                                    onChange={handlenuevacantidadPisos}
-                                />
-                            </div>
-                        </div>
-
-                        <p></p>
-
-                        <div class="form-group row">
-                            <label for="nombre_usuario" class="col-sm-2 col-form-label">Mod Deptos x piso</label>
-                            <div class="col-sm-10">
-                                <input
-                                    type="text" class="form-control" id="ewq" aria-describedby="estadoRsdfsfdfeclamo" placeholder="Ingrese la cantidad de dpartamentos por piso del edificio nuevamente para modificar"
-                                    value={nuevacantidadDepartamentos}
-                                    onChange={handlenuevacantidadDepartamentos}
-                                />
-                            </div>
-                        </div>
-
-                        <p></p>
 
                         <div class="form-group row">
                             <div class="col-sm-1"></div>

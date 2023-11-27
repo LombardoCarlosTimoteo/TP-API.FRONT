@@ -14,12 +14,14 @@ function ConsultarReclamoParticular() {
     const [estadoReclamo, setestadoReclamo] = useState("")
     const [nuevoEstadoReclamo, setnuevoEstadoReclamo] = useState("")
     const [filtrarPorEstado, setfiltrarPorEstadoChange] = useState("")
-    const [listaReclamosComunes, setlistaReclamosComunes] = useState([]);
+    const [listaReclamosParticulares, setlistaReclamosParticulares] = useState([]);
     const [tipoBusqueda, settipoBusqueda] = useState([]);
+    const [medidasTomadasNueva, setmedidasTomadasNueva,] = useState("");
+    const [nombreAutorDelReclamo, setnombreAutorDelReclamo] = useState("")
+    const [apellidoAutorDelReclamo, setapellidoAutorDelReclamo] = useState("")
     const [numeroDeReclamo, setnumeroDeReclamo] = useState([]);
     const [listaReclamosPorFiltro, setlistaReclamosPorFiltro] = useState([]);
     const [medidasTomadasActual, setmedidasTomadasActual] = useState("");
-    const [medidasTomadasNueva, setmedidasTomadasNueva,] = useState("");
     const [listaTodosReclamos, setlistaTodosReclamos,] = useState([]);
     const [idReclamo, setidReclamo,] = useState([]);
     const [unidad, setunidad,] = useState([]);
@@ -28,64 +30,40 @@ function ConsultarReclamoParticular() {
     const reclamoSeleccionado = "";
     const estadoNuevoSeleccionado = "";
 
-    useEffect(() => {
-        setlistaTodosReclamos(reclamos)
-    })
     //si es admin, cargar todos los reclamos en listaReclamosComunes
     //si no, cargar aquellos reclamos que correspondan al edificio del usuario en listaReclamosComunes tambien
+
+
     useEffect(() => {
-        if (userData.tipoUsuario === "ADMIN") { //si es admin, agarrar todos los reclamos comunes
+        
 
-            var URL = "http://localhost:8080/api/reclamos"
-            var token = `Bearer ${userData.token}`// + userData.token
+        var URL = "http://localhost:8080/api/reclamos"
+        var token = `Bearer ${userData.token}`// + userData.token
 
-            fetch(URL, {
+        fetch(URL, {
 
-                headers: new Headers({
-                    'Authorization': token,
-                }),
-                method: "GET"
+            headers: new Headers({
+                'Authorization': token,
+            }),
+            method: "GET"
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("No se pudo hacer el GET")
+                }
+                return response.json()
             })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("No se pudo hacer el GET")
-                    }
-                    return response.json()
-                })
-                .then(response => {
-                    //console.log(response)
-                    //JSON.stringify(response)
-                    setlistaTodosReclamos(response);
-                    console.log("listaTodosReclamos", listaTodosReclamos)
-                })
-                .catch(error => console.log("Error: ", error))
-        }
+            .then(response => {
+                setlistaTodosReclamos(response);
+                console.log("listaTodosReclamos", listaTodosReclamos)
 
-        /*  else if (userData.tipoUsuario === "INQUILINO" || userData.tipoUsuario === "DUENIO") { //si es inquilino o dueño, agarrar los reclamos de su edificio que se encuentra en el context
-             var URL = "http://localhost:8080/api/reclamosComunesDeUsuario/{idEdificio}" //idEdificio esta en el contexto
-             var token = `Bearer ${userData.token}`// + userData.token
-             console.log(token)
-             fetch(URL, {
- 
-                 headers: new Headers({
-                     'Authorization': token,
-                 }),
-                 method: "GET"
-             })
-                 .then(response => {
-                     if (!response.ok) {
-                         throw new Error("No se pudo hacer el GET")
-                     }
-                     return response.json()
-                 })
-                 .then(response => {
-                     JSON.stringify(response)
-                     console.log(response)
-                 })
-                 .catch(error => console.log("Error: ", error))
-         } */
+                const listaRParticulares = listaTodosReclamos.filter(reclamo => { return reclamo.tipoReclamo === "PARTICULAR" })
+                setlistaReclamosParticulares(listaRParticulares);
+            })
+            .catch(error => console.log("Error: ", error))
+    }
 
-    }, [])
+        , [])
 
     const handleFileChange = (event) => {
         const archivos = event.target.files;
@@ -94,6 +72,7 @@ function ConsultarReclamoParticular() {
             imagenes.push(URL.createObjectURL(archivos[i]));
         }
         setimagenes(imagenes);
+
     };
 
     const handleRealizarCambios = (event) => {
@@ -104,33 +83,108 @@ function ConsultarReclamoParticular() {
             setdatosCorrectos(true);
         }
         if (userData.tipoUsuario === "ADMIN") {
-            if (nuevoEstadoReclamo !== "") {
+            if (nuevoEstadoReclamo !== "" && medidasTomadasNueva !== "") {
                 setestadoReclamo(nuevoEstadoReclamo)
                 console.log("cambios en el reclamo")
                 console.log("nuevoEstadoReclamo", nuevoEstadoReclamo)
+
+                var URL = `http://localhost:8080/api/reclamos/${idReclamo}`
+                var data = {
+                    "medidasTomadas": medidasTomadasNueva,
+                    "estadoReclamo": nuevoEstadoReclamo
+                }
+                fetch(URL, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${userData.token}`
+                    },
+                    method: "PUT",
+                    body: JSON.stringify(data)
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("No se pudo hacer el GET")
+                        }
+                    })
+                    .catch(error => console.log("Error: ", error))
+
+
+                setestadoReclamo(nuevoEstadoReclamo)
+                setmedidasTomadasActual(medidasTomadasNueva)
             }
-            if (medidasTomadasNueva !== "") setmedidasTomadasActual(medidasTomadasNueva)
         }
+        var URL = "http://localhost:8080/api/reclamos"
+        fetch(URL, {
+
+            headers: new Headers({
+                'Authorization': `Bearer ${userData.token}`,
+            }),
+            method: "GET"
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("No se pudo hacer el GET")
+                }
+                return response.json()
+            })
+            .then(response => {
+                setlistaTodosReclamos(response);
+                console.log("listaTodosReclamos", listaTodosReclamos)
+
+                const listaRParticulares = listaTodosReclamos.filter(reclamo => { return reclamo.tipoReclamo === "PARTICULAR" })
+                setlistaReclamosParticulares(listaRParticulares);
+                console.log("listaRParticulares", listaRParticulares)
+
+
+            })
+            .catch(error => console.log("Error: ", error))
         setnuevoEstadoReclamo("")
         setmedidasTomadasNueva("")
     }
+
+    //HASTA ACA HICE -------------------------------------------------------------------------------------------------------------
 
     const handleReclamoFiltradosSeleccionado = (event) => {
         //esto se hace cuando se selecciona un reclamo dentro de lista de reclamos.
         const reclamoABuscar = event.target.value;
         console.log("reclamoABuscar", reclamoABuscar)
-
+        setnombreAutorDelReclamo("");
+        setapellidoAutorDelReclamo("");
         const reclamoEncontrado = listaReclamosPorFiltro.find(reclamo => reclamo.id === parseInt(reclamoABuscar), 10);
         console.log("reclamoEncontrado.descripcion", reclamoEncontrado.descripcion)
         if (reclamoEncontrado) {
             setidReclamo(reclamoEncontrado.id);
-            setestadoReclamo(reclamoEncontrado.estado);
-            setPiso(reclamoEncontrado.piso);
-            setunidad(reclamoEncontrado.unidad);
+            setestadoReclamo(reclamoEncontrado.estadoReclamo);
+            setPiso(reclamoEncontrado.pisoDepartamento);
+            setunidad(reclamoEncontrado.unidadDepartamento);
             setDescripcion(reclamoEncontrado.descripcion);
             setmedidasTomadasActual(reclamoEncontrado.medidasTomadas)
-            setdireccionEdificio("PONER DIRECCION")
+            setdireccionEdificio(reclamoEncontrado.direccionEdificio)
             //imagenes
+            const idAutor = reclamoEncontrado.usuarioId
+            var URL = `http://localhost:8080/api/usuarios/${idAutor}`
+            var token = `Bearer ${userData.token}`
+            if (idAutor != 0) {
+                fetch(URL, {
+                    headers: new Headers({
+                        'Authorization': token,
+                    }),
+                    method: "GET"
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("No se pudo hacer el GET")
+                        }
+                        return response.json()
+                    })
+                    .then(response => {
+                        console.log("response: ", response)
+                        setnombreAutorDelReclamo(response.nombre)
+                        setapellidoAutorDelReclamo(response.apellido)
+                    })
+
+            }
+
         }
     }
 
@@ -138,34 +192,52 @@ function ConsultarReclamoParticular() {
         setnuevoEstadoReclamo(event.target.value)
     }
     const handlefiltrarPorEstadoSeleccionado = (event) => {
+        setnombreAutorDelReclamo("");
+        setapellidoAutorDelReclamo("");
         setestadoReclamo("");
-        setPiso("");
         setDescripcion("");
         setmedidasTomadasActual("");
         setidReclamo("");
+        setdireccionEdificio("");
+        setPiso("");
+        setunidad("");
         const filtroSeleccionado = event.target.value;
-        const listaFiltrada = listaTodosReclamos.filter(reclamo => { return reclamo.estado === filtroSeleccionado && reclamo.tipoReclamo === "PARTICULAR" })
-        setlistaReclamosPorFiltro(listaFiltrada);
+
+        //ACA BUSCAR TODOS LOS RECLAMOS QUE PERTENEZCAN AL FILTRO SELECCIONADO
+
+        var URL = `http://localhost:8080/api/reclamos/PARTICULAR/${filtroSeleccionado}`
+        var token = `Bearer ${userData.token}`
+
+        fetch(URL, {
+
+            headers: new Headers({
+                'Authorization': token,
+            }),
+            method: "GET"
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("No se pudo hacer el GET")
+                }
+                return response.json()
+            })
+            .then(response => {
+                //console.log("response: ", response)
+                setlistaReclamosPorFiltro(response);
+
+
+                const listaRParticulares = listaReclamosPorFiltro.filter(reclamo => { return reclamo.tipoReclamo == "PARTICULAR" })
+                setlistaReclamosParticulares(listaRParticulares);
+                console.log("listaRComunes", listaRParticulares)
+
+
+            })
+
+
 
         console.log("\n\n\n")
         console.log("listaTodosReclamos", listaTodosReclamos)
         console.log("listaReclamosPorFiltro", listaReclamosPorFiltro)
-        console.log("listaFiltrada", listaFiltrada)
-        /* //setlistaReclamosPorFiltro([])
-
-        while (listaReclamosPorFiltro.length > 0)
-            listaReclamosPorFiltro.pop()
-
-        //const lReclamosComunesPorFiltro = listaTodosReclamos.filter(reclamo => reclamo.estadoReclamo === filtrarPorEstado && reclamo.tipoReclamo === "COMUN");
-        console.log("aca adentor todos reclamos", listaTodosReclamos)
-        for (let i = 0; i < listaTodosReclamos.length; i++) {
-            if (listaTodosReclamos[i].estadoReclamo === filtrarPorEstado && listaTodosReclamos[i].tipoReclamo === "COMUN") {
-                console.log(listaTodosReclamos[i])
-                listaReclamosPorFiltro.push(listaTodosReclamos[i])
-            }
-        }
-        //setlistaReclamosPorFiltro(listaTodosReclamos.filter(reclamo => {return reclamo.estadoReclamo == filtrarPorEstado && reclamo.tipoReclamo == "COMUN"}))
-        console.log("listaReclamosPorFiltro", listaReclamosPorFiltro) */
     }
     const handleMedidasTomadasNueva = (event) => {
         setmedidasTomadasNueva(event.target.value)
@@ -181,6 +253,8 @@ function ConsultarReclamoParticular() {
         setunidad("");
         setPiso("");
         setdireccionEdificio("");
+        setnombreAutorDelReclamo("");
+        setapellidoAutorDelReclamo("");
         settipoBusqueda(event.target.value)
     }
     const handleNumeroDeReclamo = (event) => {
@@ -192,33 +266,107 @@ function ConsultarReclamoParticular() {
     }
     const handleEliminarReclamo = (event) => {
         console.log("eliminar el reclamo")
+        var URL = `http://localhost:8080/api/reclamos/${idReclamo}`
+        var token = `Bearer ${userData.token}`
+        fetch(URL, {
+            headers: {
+                Authorization: token
+            },
+            method: "DELETE"
+        })
+            .then(response => {
+                if (response.status() !== 204) {
+                    throw new Error("No se pudo hacer eliminar el reclamo")
+                }
+            })
+            .catch(error => console.log(error))
+
+        var URL = "http://localhost:8080/api/reclamos"
+        fetch(URL, {
+
+            headers: new Headers({
+                'Authorization': `Bearer ${userData.token}`,
+            }),
+            method: "GET"
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("No se pudo hacer el GET")
+                }
+                return response.json()
+            })
+            .then(response => {
+                setlistaTodosReclamos(response);
+                console.log("listaTodosReclamos", listaTodosReclamos)
+
+                const listaRParticulares = listaTodosReclamos.filter(reclamo => { return reclamo.tipoReclamo === "PARTICULARES" })
+                setlistaReclamosParticulares(listaRParticulares);
+            })
+            .catch(error => console.log("Error: ", error))
+
+        alert("Reclamo eliminado");
+        setdireccionEdificio("");
+        setestadoReclamo("");
+        setDescripcion("");
+        setmedidasTomadasActual("");
+        setidReclamo("");
+        setnuevoEstadoReclamo("");
+        setmedidasTomadasNueva("");
+        setnombreAutorDelReclamo("");
+        setapellidoAutorDelReclamo("");
+        setunidad("");
+        setPiso("");
     }
     const handleRealizarBusqueda = (event) => {
         if (tipoBusqueda === "busquedaPorNumeroReclamo") {
             const reclamoEncontrado = listaTodosReclamos.find(reclamo => { return reclamo.id === parseInt(numeroDeReclamo, 10) && reclamo.tipoReclamo === "PARTICULAR" })
             if (reclamoEncontrado) {
                 setidReclamo(reclamoEncontrado.id);
-                setestadoReclamo(reclamoEncontrado.estado);
-                setPiso(reclamoEncontrado.piso);
-                setunidad(reclamoEncontrado.unidad);
+                setestadoReclamo(reclamoEncontrado.estadoReclamo);
+                setPiso(reclamoEncontrado.pisoDepartamento);
+                setunidad(reclamoEncontrado.unidadDepartamento);
                 setDescripcion(reclamoEncontrado.descripcion);
                 setmedidasTomadasActual(reclamoEncontrado.medidasTomadas)
-                setdireccionEdificio("PONER DIRECCION")
+                setdireccionEdificio(reclamoEncontrado.direccionEdificio)
                 //imagenes
+                const idAutor = reclamoEncontrado.usuarioId
+                var URL = `http://localhost:8080/api/usuarios/${idAutor}`
+                var token = `Bearer ${userData.token}`
+                if (idAutor != 0) {
+                    fetch(URL, {
+                        headers: new Headers({
+                            'Authorization': token,
+                        }),
+                        method: "GET"
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error("No se pudo hacer el GET")
+                            }
+                            return response.json()
+                        })
+                        .then(response => {
+                            console.log("response: ", response)
+                            setnombreAutorDelReclamo(response.nombre)
+                            setapellidoAutorDelReclamo(response.apellido)
+                        })
+
+                }
             }
-            else{
-                alert("No existe el reclamo buscado")
+            else {
+                alert("No existe el reclamo particular con el ID ingresado")
+                setidReclamo("");
                 setestadoReclamo("");
                 setPiso("");
+                setunidad("");
                 setDescripcion("");
-                //setimagenes(reclamoEncontrado.imagenes);
-                setidReclamo("");
                 setmedidasTomadasActual("");
+                setdireccionEdificio("");
             }
         }
         else {
 
-            const listaReclamosPorFiltro = listaReclamosComunes.filter(reclamo => reclamo.estado === filtrarPorEstado);
+            const listaReclamosPorFiltro = listaReclamosParticulares.filter(reclamo => reclamo.estado === filtrarPorEstado);
         }
     }
 
@@ -230,209 +378,219 @@ function ConsultarReclamoParticular() {
                 <h1>Inicia sesión para consultar reclamos.</h1>
 
             )}
-                <div>
-                    <form class="mx-auto" onSubmit={handleRealizarCambios}>
-                        <h1>Consultar reclamo particular</h1>
+            <div>
+                <form class="mx-auto" onSubmit={handleRealizarCambios}>
+                    <h1>Consultar reclamo particular</h1>
 
-                        <p></p>
+                    <p></p>
+                    <div class="form-group row">
+                        <label for="tipoUsuario" class="col-sm-2 col-form-label">Tipo de búsqueda</label>
+
+                        <div class="col-sm-10">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipoUsuario" id="tipoUsuario1" value="busquedaPorNumeroReclamo" onChange={handleTipoBusqueda} />
+                                <label class="form-check-label" for="tipoUsuario1">Por número de reclamo</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipoUsuario" id="tipoUsuario2" value="busquedaPorEstado" onChange={handleTipoBusqueda} />
+                                <label class="form-check-label" for="tipoUsuario2">Por estado de reclamo</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p></p>
+
+                    {tipoBusqueda === "busquedaPorEstado" && (
                         <div class="form-group row">
-                            <label for="tipoUsuario" class="col-sm-2 col-form-label">Tipo de búsqueda</label>
-
+                            <label class="col-sm-2 col-form-label">Filtrar por estado</label>
                             <div class="col-sm-10">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="tipoUsuario" id="tipoUsuario1" value="busquedaPorNumeroReclamo" onChange={handleTipoBusqueda} />
-                                    <label class="form-check-label" for="tipoUsuario1">Por número de reclamo</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="tipoUsuario" id="tipoUsuario2" value="busquedaPorEstado" onChange={handleTipoBusqueda} />
-                                    <label class="form-check-label" for="tipoUsuario2">Por estado de reclamo</label>
+                                <div class="custom-select">
+                                    <select class="form-control" id="estado" name="estado" onChange={handlefiltrarPorEstadoSeleccionado}>
+                                        <option value="" disabled selected>Seleccione un estado</option>
+                                        <option value="NUEVO">Nuevo</option>
+                                        <option value="ABIERTO">Abierto</option>
+                                        <option value="EN_PROCESO">En proceso</option>
+                                        <option value="DESESTIMADO">Desestimado</option>
+                                        <option value="ANULADO">Anulado</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
+                    )}
 
-                        <p></p>
-
-                        {tipoBusqueda === "busquedaPorEstado" && (
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Filtrar por estado</label>
-                                <div class="col-sm-10">
-                                    <div class="custom-select">
-                                        <select class="form-control" id="estado" name="estado" onChange={handlefiltrarPorEstadoSeleccionado}>
-                                            <option value="" disabled selected>Seleccione un estado</option>
-                                            <option value="NUEVO">Nuevo</option>
-                                            <option value="ABIERTO">Abierto</option>
-                                            <option value="EN_PROCESO">En proceso</option>
-                                            <option value="DESESTIMADO">Desestimado</option>
-                                            <option value="ANULADO">Anulado</option>
-                                        </select>
-                                    </div>
-                                </div>
+                    {tipoBusqueda === "busquedaPorNumeroReclamo" && (
+                        <div class="form-group row">
+                            <label for="nombre_usuario" class="col-sm-2 col-form-label">Numero de reclamo</label>
+                            <div class="col-sm-10">
+                                <input
+                                    type="text" class="form-control" id="nombre_usuario" aria-describedby="nombre_usuario" placeholder="Ingrese el número de reclamo"
+                                    onChange={handleNumeroDeReclamo}
+                                    value={numeroDeReclamo} />
                             </div>
-                        )}
+                        </div>
+                    )}
+                    <p></p>
 
-                        {tipoBusqueda === "busquedaPorNumeroReclamo" && (
-                            <div class="form-group row">
-                                <label for="nombre_usuario" class="col-sm-2 col-form-label">Numero de reclamo</label>
-                                <div class="col-sm-10">
-                                    <input
-                                        type="text" class="form-control" id="nombre_usuario" aria-describedby="nombre_usuario" placeholder="Ingrese el número de reclamo"
-                                        onChange={handleNumeroDeReclamo}
-                                        value={numeroDeReclamo} />
-                                </div>
-                            </div>
-                        )}
-                        <p></p>
-
-                        {tipoBusqueda === "busquedaPorEstado" && (
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Lista de reclamos</label>
-                                <div class="col-sm-10">
-                                    <div class="custom-select">
-                                        <select
-                                            class="form-control"
-                                            id="lugarComun"
-                                            name="lugarComun"
-                                            onChange={handleReclamoFiltradosSeleccionado}
-                                            value={reclamoSeleccionado || ""}
-                                        >
-                                            <option value="" disabled>
-                                                {reclamoSeleccionado ? "Reclamo seleccionado" : "Seleccione un reclamo"}
+                    {tipoBusqueda === "busquedaPorEstado" && (
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Lista de reclamos</label>
+                            <div class="col-sm-10">
+                                <div class="custom-select">
+                                    <select
+                                        class="form-control"
+                                        id="lugarComun"
+                                        name="lugarComun"
+                                        onChange={handleReclamoFiltradosSeleccionado}
+                                        value={reclamoSeleccionado || ""}
+                                    >
+                                        <option value="" disabled>
+                                            {reclamoSeleccionado ? "Reclamo seleccionado" : "Seleccione un reclamo"}
+                                        </option>
+                                        {listaReclamosPorFiltro.map((reclamo, index) => (
+                                            <option key={index} value={reclamo.id}>
+                                                {reclamo.id}
                                             </option>
-                                            {listaReclamosPorFiltro.map((reclamo, index) => (
-                                                <option key={index} value={reclamo.id}>
-                                                    {reclamo.id}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                        <p></p>
-
-                        <div class="form-group row">
-                            <label for="nombre_usuario" class="col-sm-2 col-form-label">ID Reclamo común</label>
-                            <div class="col-sm-10">
-                                <input
-                                    type="text" class="form-control" id="estadoReclamo" aria-describedby="estadoReclamo" placeholder="" value={idReclamo} readonly
-                                />
-                            </div>
-                        </div>
-
-                        <p></p>
-
-                        <div class="form-group row">
-                            <label for="nombre_usuario" class="col-sm-2 col-form-label">Estado actual</label>
-                            <div class="col-sm-10">
-                                <input
-                                    type="text" class="form-control" id="estadoReclamo" aria-describedby="estadoReclamo" placeholder="" value={estadoReclamo} readonly
-                                />
-                            </div>
-                        </div>
-
-                        <p></p>
-                        <div class="form-group row">
-                            <label for="nombre_usuario" class="col-sm-2 col-form-label">Dirección edificio</label>
-                            <div class="col-sm-10">
-                                <input
-                                    type="text" class="form-control" id="estadoReclamo" aria-describedby="estadoReclamo" placeholder="" value={direccionEdificio} readonly
-                                />
-                            </div>
-                        </div>
-
-                        <p></p>
-
-                        <div class="form-group row">
-                            <label for="nombre_usuario" class="col-sm-2 col-form-label">Piso</label>
-                            <div class="col-sm-10">
-                                <input
-                                    type="text" class="form-control" id="lugarComun" aria-describedby="lugarComun" placeholder="" value={piso} readonly
-                                />
-                            </div>
-                        </div>
-
-                        <p></p>
-                        <div class="form-group row">
-                            <label for="nombre_usuario" class="col-sm-2 col-form-label">Unidad</label>
-                            <div class="col-sm-10">
-                                <input
-                                    type="text" class="form-control" id="lugarComun" aria-describedby="lugarComun" placeholder="" value={unidad} readonly
-                                />
-                            </div>
-                        </div>
-
-                        <p></p>
-
-                        <div class="form-group row">
-                            <label for="descripcionReclamo" class="col-sm-2 col-form-label">Descripción</label>
-                            <div class="col-sm-10">
-                                <textarea class="form-control" id="descripcionReclamo" rows="3"
-                                    maxLength="200"
-                                    readOnly
-                                    value={descripcion}></textarea>
-                            </div>
-                        </div>
-
-                        <p></p>
-
-                        <div class="form-group row">
-                            <label for="descripcionReclamo" class="col-sm-2 col-form-label">Medidas Tomadas</label>
-                            <div class="col-sm-10">
-                                <textarea class="form-control" id="descripcionReclamo" rows="3"
-                                    maxLength="200"
-                                    readOnly
-                                    value={medidasTomadasActual}></textarea>
-                            </div>
-                        </div>
-
-                        <p></p>
-
-                        <div class="form-group row">
-                            <label for="adjuntarImagenes" class="col-sm-2 col-form-label">Imágenes</label>
-                            <div class="col-sm-10">
-                                <div class="custom-file">
-                                    <p></p>
-                                    <div>
-                                        {imagenes.map((imagen, index) => (
-                                            <img key={index} src={imagen} alt={`Imagen ${index}`} width="100" />
                                         ))}
-                                    </div>
+                                    </select>
                                 </div>
                             </div>
                         </div>
+                    )}
+                    <p></p>
 
-                        <p></p>
+                    <div class="form-group row">
+                        <label for="nombre_usuario" class="col-sm-2 col-form-label">ID Reclamo común</label>
+                        <div class="col-sm-10">
+                            <input
+                                type="text" class="form-control" id="estadoReclamo" aria-describedby="estadoReclamo" placeholder="" value={idReclamo} readonly
+                            />
+                        </div>
+                    </div>
 
-                        {(userData.tipoUsuario === "ADMIN") && (
+                    <p></p>
 
-                            <div class="form-group row">
-                            <label class="col-sm-2 col-form-label">Nuevo estado</label>
-                                <div class="col-sm-10">
-                                    <div class="custom-select">
-                                        <select
-                                            class="form-control"
-                                            id="lugarComun"
-                                            name="lugarComun"
-                                            onChange={handleNuevoEstadoSeleccionado}
-                                            value={estadoNuevoSeleccionado || ""}
-                                        >
-                                            <option value="" disabled>
-                                                {estadoNuevoSeleccionado ? "Nuevo estado seleccionado" : "Seleccione un nuevo estado"}
-                                            </option>
-                                                <option value="" disabled selected>Seleccione un estado</option>
-                                                <option value="NUEVO">Nuevo</option>
-                                                <option value="ABIERTO">Abierto</option>
-                                                <option value="EN_PROCESO">En proceso</option>
-                                                <option value="DESESTIMADO">Desestimado</option>
-                                                <option value="ANULADO">Anulado</option>
-                                           
-                                        </select>
-                                    </div>
+                    <div class="form-group row">
+                        <label for="nombre_usuario" class="col-sm-2 col-form-label">Estado actual</label>
+                        <div class="col-sm-10">
+                            <input
+                                type="text" class="form-control" id="estadoReclamo" aria-describedby="estadoReclamo" placeholder="" value={estadoReclamo} readonly
+                            />
+                        </div>
+                    </div>
+
+                    <p></p>
+                    <div class="form-group row">
+                        <label for="nombre_usuario" class="col-sm-2 col-form-label">Dirección edificio</label>
+                        <div class="col-sm-10">
+                            <input
+                                type="text" class="form-control" id="estadoReclamo" aria-describedby="estadoReclamo" placeholder="" value={direccionEdificio} readonly
+                            />
+                        </div>
+                    </div>
+
+                    <p></p>
+
+                    <div class="form-group row">
+                        <label for="nombre_usuario" class="col-sm-2 col-form-label">Piso</label>
+                        <div class="col-sm-10">
+                            <input
+                                type="text" class="form-control" id="lugarComun" aria-describedby="lugarComun" placeholder="" value={piso} readonly
+                            />
+                        </div>
+                    </div>
+
+                    <p></p>
+                    <div class="form-group row">
+                        <label for="nombre_usuario" class="col-sm-2 col-form-label">Unidad</label>
+                        <div class="col-sm-10">
+                            <input
+                                type="text" class="form-control" id="lugarComun" aria-describedby="lugarComun" placeholder="" value={unidad} readonly
+                            />
+                        </div>
+                    </div>
+
+                    <p></p>
+
+                    <div class="form-group row">
+                        <label for="descripcionReclamo" class="col-sm-2 col-form-label">Descripción</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" id="descripcionReclamo" rows="3"
+                                maxLength="200"
+                                readOnly
+                                value={descripcion}></textarea>
+                        </div>
+                    </div>
+
+                    <p></p>
+
+                    <div class="form-group row">
+                        <label for="descripcionReclamo" class="col-sm-2 col-form-label">Medidas Tomadas</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" id="descripcionReclamo" rows="3"
+                                maxLength="200"
+                                readOnly
+                                value={medidasTomadasActual}></textarea>
+                        </div>
+                    </div>
+
+                    <p></p>
+
+                    <div class="form-group row">
+                        <label for="adjuntarImagenes" class="col-sm-2 col-form-label">Imágenes</label>
+                        <div class="col-sm-10">
+                            <div class="custom-file">
+                                <p></p>
+                                <div>
+                                    {imagenes.map((imagen, index) => (
+                                        <img key={index} src={imagen} alt={`Imagen ${index}`} width="100" />
+                                    ))}
                                 </div>
                             </div>
-                         )}
-                        <p></p>
-                        {(userData.tipoUsuario === "ADMIN") && (
+                        </div>
+                    </div>
+
+                    <p></p>
+
+                    <div class="form-group row">
+                        <label for="nombre_usuario" class="col-sm-2 col-form-label">Autor</label>
+                        <div class="col-sm-10">
+                            <input
+                                type="text" class="form-control" id="estadoReclamo" aria-describedby="estadoReclamo" placeholder="" value={nombreAutorDelReclamo + " " + apellidoAutorDelReclamo} readonly
+                            />
+                        </div>
+                    </div>
+
+                    <p></p>
+                    {(userData.tipoUsuario === "ADMIN") && (
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Nuevo estado</label>
+                            <div class="col-sm-10">
+                                <div class="custom-select">
+                                    <select
+                                        class="form-control"
+                                        id="lugarComun"
+                                        name="lugarComun"
+                                        onChange={handleNuevoEstadoSeleccionado}
+                                        value={estadoNuevoSeleccionado || ""}
+                                    >
+                                        <option value="" disabled>
+                                            {estadoNuevoSeleccionado ? "Nuevo estado seleccionado" : "Seleccione un nuevo estado"}
+                                        </option>
+                                        <option value="" disabled selected>Seleccione un estado</option>
+                                        <option value="NUEVO">Nuevo</option>
+                                        <option value="ABIERTO">Abierto</option>
+                                        <option value="EN_PROCESO">En proceso</option>
+                                        <option value="DESESTIMADO">Desestimado</option>
+                                        <option value="ANULADO">Anulado</option>
+
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    <p></p>
+                    {(userData.tipoUsuario === "ADMIN") && (
 
                         <div class="form-group row">
                             <label for="nombre_usuario" class="col-sm-2 col-form-label">Nuevo estado seleccionado</label>
@@ -442,11 +600,11 @@ function ConsultarReclamoParticular() {
                                 />
                             </div>
                         </div>
- )}
-                        <p></p>
+                    )}
+                    <p></p>
 
 
-                        {(userData.tipoUsuario === "ADMIN") && (
+                    {(userData.tipoUsuario === "ADMIN") && (
                         <div class="form-group row">
                             <label for="descripcionReclamo" class="col-sm-2 col-form-label">Nuevas medidas tomadas</label>
                             <div class="col-sm-10">
@@ -456,24 +614,24 @@ function ConsultarReclamoParticular() {
                                 ></textarea>
                             </div>
                         </div>
-                        )}
-                        <p></p>
+                    )}
+                    <p></p>
 
-                        <div class="form-group row">
-                            <div class="col-sm-1"></div>
-                            <div className="col-sm-10 d-flex justify-content-center">
-                                {tipoBusqueda === "busquedaPorNumeroReclamo" && (<button onClick={handleRealizarBusqueda} className="mx-5">Realizar búsqueda</button>)}
-                                {(userData.tipoUsuario === "ADMIN") && (
-                                <button onClick={handleRealizarCambios}  className="mx-5">Realizar cambios</button>
-                                )}
-                                {(userData.tipoUsuario === "ADMIN") && (
+                    <div class="form-group row">
+                        <div class="col-sm-1"></div>
+                        <div className="col-sm-10 d-flex justify-content-center">
+                            {tipoBusqueda === "busquedaPorNumeroReclamo" && (<button onClick={handleRealizarBusqueda} className="mx-5">Realizar búsqueda</button>)}
+                            {(userData.tipoUsuario === "ADMIN") && (
+                                <button onClick={handleRealizarCambios} className="mx-5">Realizar cambios</button>
+                            )}
+                            {(userData.tipoUsuario === "ADMIN") && (
                                 <button onClick={handleEliminarReclamo} className="mx-5">Eliminar reclamo común</button>
-                                )}
-                            </div>
+                            )}
                         </div>
-                    </form>
-                </div>
-           
+                    </div>
+                </form>
+            </div>
+
 
         </div>
     );

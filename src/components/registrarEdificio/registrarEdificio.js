@@ -25,12 +25,11 @@ function RegistrarEdificio() {
             var URL = "http://localhost:8080/api/edificios"
             var token = `Bearer ${userData.token}`// + userData.token
             var data = {
-                "direccion": direccionEdificio,
+                "direccion": direccionEdificio.toLowerCase(),
                 "pisos": cantidadPisos,
                 "unidadesXPiso": departamentosPorPiso
             }
             
-            //Hacemos el GET a la API de todos los usuarios
             fetch(URL, {
                 headers: {
                     'Authorization': token,
@@ -112,8 +111,8 @@ function RegistrarEdificio() {
 
                         <div class="form-group row">
                             <div class="col-sm-2"></div>
-                            <div class="col-sm-10">
-                                <button type="submit" class="">Registrar edificio</button>                            </div>
+                            <div className="col-sm-11 d-flex justify-content-center">
+                                <button type="submit" className="mx-5" class="">Registrar edificio</button>                            </div>
                         </div>
                     </form>
                 )}

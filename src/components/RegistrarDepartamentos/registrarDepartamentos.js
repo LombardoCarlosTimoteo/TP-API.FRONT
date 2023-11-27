@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import './registrarDepartamentos.css';
 import { useContext } from "react";
 import MyContext from "../ReactContext/myContext";
+import { useEffect } from 'react';
 
 function RegistrarDepartamentos() {
     const [piso, setPiso] = useState("")
@@ -12,23 +13,81 @@ function RegistrarDepartamentos() {
     const [estaAlquilado, setestaAlquilado] = useState('')
     const [datosCorrectos, setdatosCorrectos] = useState(false);
     const { userData, setUserData } = useContext(MyContext)
+    const [listaTodosEdificios, setlistaTodosEdificios] = useState([]); //lista de todos los edificios
+    const [edificioSeleccionado, setedificioSeleccionado] = useState('')
+
+
+    useEffect(() => {
+        if(userData.tipoUsuario === "ADMIN"){
+            var URL = "http://localhost:8080/api/edificios"
+            var token = `Bearer ${userData.token}`// + userData.token
+            console.log(token)
+            fetch(URL, {
+                headers: new Headers({
+                    'Authorization': token,
+                    'Content-Type': "application/json",
+                    
+                }),
+                method: "GET"
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("No se pudo hacer el GET")
+                }
+                return response.json()
+            })
+            .then(response => {
+                setlistaTodosEdificios(response)
+            })
+            .catch(error => console.log("Error: ", error))
+        }
+        
+    }, [])
 
     const handleOtroDepartamento = (event) => {
         setdatosCorrectos(false);
         setPiso("")
         setDepartamento("")
         setDireccionEdificio("")
-        setdniDueño("")
-        setestaAlquilado("")
     }
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async(event) => {
         event.preventDefault();
         if (userData.nombre_usuario === "") alert("No has iniciado sesión")
         else if (userData.tipoUsuario === "ADMIN") {
+        
+                event.preventDefault();
+                try {
+                var URL = "http://localhost:8080/api/departamentos";
+                var data = {
+                    "direccionEdificio":edificioSeleccionado,
+                    "pisoDepartamento": piso,
+                    "unidadDepartamento": departamento,
+                };
+            
+                var response = await fetch(URL, {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${userData.token}`,
+                    },
+                    body: JSON.stringify(data),
+                });
+            
+                var responseData = await response.json();
+                console.log(responseData);
+                
+                //setnroReclamo(responseData.id);
+                setdatosCorrectos(true);
+                
+                } catch (error) {
+                console.error("Error:", error);
+                }
+                setdatosCorrectos(true);
+              }
             //crear departamento aca
-            setdatosCorrectos(true);
-        }
+            
+        
         else alert("No tienes permisos de administrador")
     }
 
@@ -58,6 +117,12 @@ function RegistrarDepartamentos() {
         console.log("eliminar depto")
     }
 
+    const handleEdificioChange = (event) => {
+        setedificioSeleccionado(event.target.value)
+    }
+
+
+
     return (
         <div>
             {datosCorrectos ? (
@@ -74,11 +139,19 @@ function RegistrarDepartamentos() {
                         <p></p>
 
                         <div class="form-group row">
-                            <label for="direccionEdificio" class="col-sm-2 col-form-label">Dirección edificio</label>
+                            <label class="col-sm-2 col-form-label">Dirección Edificios</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="direccionEdificio" aria-describedby="direccionEdificio" placeholder="Ingrese la dirección del edificio"
-                                    onChange={handledireccionEdificio}
-                                    value={direccionEdificio} />
+                                <div class="custom-select">
+                                    <select class="form-control" id="lugarComun" name="lugarComun" onChange={handleEdificioChange} >
+                                        <option value="" disabled selected>Seleccione un edificio</option>
+
+                                        {listaTodosEdificios.map((edificio, index) => (
+                                            <option key={index} value={edificio.direccion}>
+                                                {edificio.direccion}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
@@ -105,46 +178,6 @@ function RegistrarDepartamentos() {
                         </div>
 
                         <p></p>
-
-                        <div class="form-group row">
-                            <label for="Departamento" class="col-sm-2 col-form-label">DNI dueño</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="Departamento" aria-describedby="Departamento" placeholder="Ingrese el DNI del dueño"
-                                    onChange={handledniDueño}
-                                    value={dniDueño} />
-                            </div>
-                        </div>
-
-                        <p></p>
-
-                        <div class="form-group row">
-                            <label class="col-sm-2 col-form-label">¿Está alquilado?</label>
-                            <div class="col-sm-10">
-                                <div class="custom-select">
-                                    <select class="form-control" id="lugarComun" name="lugarComun" onChange={handleestaAlquilado}>
-                                        <option value="" disabled selected>Seleccione el estado de la unidad</option>
-                                        <option value="SI">SI</option>
-                                        <option value="NO">NO</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <p></p>
-
-                        {(estaAlquilado === "SI") && (
-                            <div class="form-group row">
-                                <label for="Departamento" class="col-sm-2 col-form-label">DNI inquilino</label>
-                                <div class="col-sm-10">
-                                    <input type="text" class="form-control" id="Departamento" aria-describedby="Departamento" placeholder="Ingrese el DNI del inquilino"
-                                        onChange={handledniInquilino}
-                                        value={dniInquilino} />
-                                </div>
-                            </div>
-                        )}
-
-                        <p></p>
-
                         <div class="form-group row">
                             <div class="col-sm-1"></div>
                             <div className="col-sm-10 d-flex justify-content-center">

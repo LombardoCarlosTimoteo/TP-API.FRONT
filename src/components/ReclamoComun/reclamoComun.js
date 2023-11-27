@@ -23,53 +23,21 @@ function ReclamoComun() {
     setDescripcion("")
     setimagenesSeleccionadas([])
   }
-  //const cleanBlobURL = (blobURL) => blobURL.replace(/^blob:/, '');
+
   const handleFileChange = (event) => {
     const archivos = event.target.files;
     const imagenes = [];
     for (let i = 0; i < archivos.length; i++) {
       var imagen = (URL.createObjectURL(archivos[i]));
       console.log("archivos[i]",archivos[i])
-/*       //blobcleanBlobURL(imagen)
-      imagen = imagen.toString()
-      imagenes.push(imagen.substring(5)); */
+
       imagenes.push(URL.createObjectURL(archivos[i]));
     }
     setimagenesSeleccionadas(imagenes);
     console.log("imagenesSeleccionadas",imagenesSeleccionadas)
   };
 
-/*   const handleSubmit = (event) => {
-    event.preventDefault();
-    if (userData.nombre_usuario === "") alert("Debes iniciar sesión")
-    else{
-      var URL = "http://localhost:8080/api/reclamos"
-      var data = {
-        "idEdificio": userData.idEdificio,
-        "lugar_comun": lugarComun,
-        "descripcion": descripcion,
-        "imagenes": imagenesSeleccionadas
-      }
-      fetch(URL, { 
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userData.token}`,
-      },
-      body: JSON.stringify({
-        "lugarComun": lugarComun,
-        "descripcion": descripcion,
-        "imagenes": imagenesSeleccionadas
-      })
-    })
-    .then(response => {
-      response.json()
-      console.log("descripcion", descripcion)
-    })
-    .then(data => {
-      nroReclamo = data.id
-    })
-   } */
+
     const handleSubmit = async (event) => {
       event.preventDefault();
       
@@ -79,11 +47,9 @@ function ReclamoComun() {
         try {
           var URL = "http://localhost:8080/api/reclamos";
           var data = {
-            //"direccionEdificio": direccionEdificio.toLowerCase(),
             "direccionEdificio":userData.direccionEdificio,
             "lugarComun": lugarComun,
             "descripcion": descripcion,
-            //"imagenes": imagenesSeleccionadas,
             "tipoReclamo": "COMUN",
             "estadoReclamo": "NUEVO",
             "usuarioId": userData.usuarioID
