@@ -71,11 +71,19 @@ function ConsultarDepartamentos() {
                 })
                 .then(response => {
                     alert("Se ha modificado el departamento")
+                    if (nombreUsuarioDueñoNuevo !=="")setnombreUsuarioDueño(nombreUsuarioDueñoNuevo)
+                    if (estaAlquiladoNuevo==="SI"){ 
+                        setestaAlquilado(estaAlquiladoNuevo)
+                        if (nombreUsuarioInquilinoNuevo !=="")setnombreUsuarioInquilino(nombreUsuarioInquilinoNuevo)
+                    }
                 })
                 .catch(error => console.log("Error: ", error))
             
         }
         else alert("No tienes permisos de administrador")
+        setnombreUsuarioDueñoNuevo("")
+        setnombreUsuarioInquilinoNuevo("")
+        setestaAlquiladoNuevo("")
     }
 
     const handledireccionEdificio = (event) => {
@@ -114,6 +122,12 @@ function ConsultarDepartamentos() {
                 .catch(error => console.log("Error: ", error))
         }
         else alert("No tienes permisos de administrador")
+        setDireccionEdificio("")
+        setPiso("")
+        setDepartamento("")
+        setnombreUsuarioDueño("")
+        setnombreUsuarioInquilino("")
+        setestaAlquilado("")
     }
 
     const handleDepartamentoSeleccionado = (event) => {
@@ -245,7 +259,7 @@ function ConsultarDepartamentos() {
                 <div class="form-group row" onSubmit={handleRealizarCambios}>
                     <label for="Piso" class="col-sm-2 col-form-label">Direccion edificio</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" id="Piso" aria-describedby="Piso"
+                        <input type="text" class="form-control" id="Piso" aria-describedby="Piso" placeholder="Ingrese la dirección del edificio"
                             value={direccionEdificio} onChange={handledireccionEdificio}
                         />
                     </div>
