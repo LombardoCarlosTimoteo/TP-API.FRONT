@@ -73,7 +73,7 @@ function Login() {
                     token: token,
                     habilitadoReclamos: habilitado
                 });
-                throw new Error("Datos del contexto inválidos");
+                //throw new Error("Datos del contexto inválidos");
             }
             else{
                 habilitado = true
@@ -113,6 +113,13 @@ function Login() {
 
             // Manejar el error según tus necesidades
         }
+        console.log(userData.nombre_usuario)
+        console.log(userData.direccionEdificio)
+        console.log(userData.piso)
+        console.log(userData.departamento)
+
+
+
     };
 
 

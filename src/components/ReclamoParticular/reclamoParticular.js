@@ -121,8 +121,9 @@ function ReclamoParticular() {
                 }),
                 method: "GET"
             }).then(response => response.json())
-            .then(response => {
-                if (response.inquilino === null){
+            .then(async response => {
+                console.log("inquilino" , response.inquilinoId)
+                if (response.inquilinoId == 0){
                     try {
                         var URL = "http://localhost:8080/api/reclamos";
                         var data = {
@@ -137,28 +138,43 @@ function ReclamoParticular() {
                           "usuarioId": userData.usuarioID
                         };
                   
-                        var response =  fetch(URL, {
+                        var response = await fetch(URL, {
                           method: 'POST',
                           headers: {
                             'Content-Type': 'application/json',
                             Authorization: `Bearer ${userData.token}`,
                           },
                           body: JSON.stringify(data),
-                        });
+                        })
+                        .then(response => response.json())
+                        .then(response => { responseData = response })
                   
-                        var responseData =  response.json();
-                        console.log("descripcion", descripcion);
-                        const nroR = response.id
-                        setnroReclamo(nroR);
-                        setdatosCorrectos(true);
-              
                         
+                  
+                        setnroReclamo(responseData.id);
+                        setdatosCorrectos(true);
+            
+                        var URL = `http://localhost:8080/api/imagen/${responseData.id}`
+                        for(let i = 0; i < imagenesSeleccionadas.length ; i++)
+                        
+                        {
+                          var formData = new FormData();
+                          formData.append("archivo", imagenesSeleccionadas[i]);
+                        
+                          fetch(URL, {
+                            method: 'POST',
+                            headers: {
+                              Authorization: `Bearer ${userData.token}`
+                            },
+                            body: formData,
+                          });
+                        }       
                       } catch (error) {
                         console.error("Error:", error);
                       }
                 }
                 else{
-                    alert("No puedes realizar reclamos")
+                    alert("No puedes realizar reclamos porque tienes inquilino")
                 }
             })
         } 

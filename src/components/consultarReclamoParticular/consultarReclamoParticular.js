@@ -143,7 +143,7 @@ function ConsultarReclamoParticular() {
         setmedidasTomadasNueva("")
     }
 
-    //HASTA ACA HICE -------------------------------------------------------------------------------------------------------------
+    
 
     const handleReclamoFiltradosSeleccionado = (event) => {
         //esto se hace cuando se selecciona un reclamo dentro de lista de reclamos.
@@ -202,8 +202,6 @@ function ConsultarReclamoParticular() {
                 })
                 .then(response => {
                     ImagenesIds = response
-                    console.log("ImagenesIds", ImagenesIds)
-                    console.log("ImagenesIds.length", ImagenesIds.length)
                 })
                 .then(response => {
                     var listaImagenesBlob = []
@@ -272,13 +270,9 @@ function ConsultarReclamoParticular() {
             .then(response => {
                 //console.log("response: ", response)
                 setlistaReclamosPorFiltro(response);
-
-
                 const listaRParticulares = listaReclamosPorFiltro.filter(reclamo => { return reclamo.tipoReclamo == "PARTICULAR" })
                 setlistaReclamosParticulares(listaRParticulares);
                 console.log("listaRComunes", listaRParticulares)
-
-
             })
 
 

@@ -92,7 +92,7 @@ function ConsultarUsuarios() {
             setUsername(nuevoUsername)
         }
         else{
-            username2=userData.nombre_usuario
+            username2=username
         }
 
         //Hacemos el PUT a la API para modificar el usuario
@@ -282,12 +282,13 @@ function ConsultarUsuarios() {
     const handleUsuariosChange = (event) => {
         const usuarioABuscar = event.target.value;
         const usuarioEncontrado = listaUsuarios.find(usuario => usuario.id === parseInt(usuarioABuscar, 10));
-
+        
         if (usuarioEncontrado) {
 
             setusuarioABuscar(usuarioABuscar);
             setNombre(usuarioEncontrado.nombre);
             setApellido(usuarioEncontrado.apellido);
+            setUsername(usuarioEncontrado.username)
             if (usuarioEncontrado.tipoUsuario === "DUENIO") {
                 setTipoUsuario("DUEÑO");
             }
