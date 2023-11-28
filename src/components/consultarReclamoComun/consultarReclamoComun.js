@@ -449,9 +449,9 @@ function ConsultarReclamoComun() {
                                                 }
                                                 return response.blob()
                                             })
-                                            .then(response => {
-                                                r = response
-                                                
+                                            .then(async  response => {
+                                                const blobResponse = await response;
+                                                r = blobResponse;
                                             })
                                             .then(response => listaImagenesBlob.push(URL.createObjectURL(r)))
                                         }

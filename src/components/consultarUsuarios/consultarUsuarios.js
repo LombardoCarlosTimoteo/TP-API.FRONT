@@ -92,7 +92,7 @@ function ConsultarUsuarios() {
             setUsername(nuevoUsername)
         }
         else{
-            username2=username
+            username2=userData.nombre_usuario
         }
 
         //Hacemos el PUT a la API para modificar el usuario
@@ -203,6 +203,8 @@ function ConsultarUsuarios() {
         setnuevoDepartamento(event.target.value)
     }
     const handleEliminarUsuario = (event) => {
+        event.preventDefault();
+
         var URL = `http://localhost:8080/auth/userLogin/${idUsuario}`
         var token = `Bearer ${userData.token}`// + userData.token
 
@@ -323,7 +325,7 @@ function ConsultarUsuarios() {
 
     return (
         <div>
-            <form class="mx-auto" onSubmit={handleSubmit}>
+            <form class="mx-auto" >
                 <h1>Consultar usuarios</h1>
                 <p></p>
                 <div class="form-group row">
@@ -455,7 +457,7 @@ function ConsultarUsuarios() {
                         <div class="col-sm-1"></div>
                         <div className="col-sm-10 d-flex justify-content-center">
                             <button onClick={handleSubmit} type="submit" className="mx-5">Realizar cambios</button>
-                            <button onClick={handleEliminarUsuario} className="mx-5">Eliminar usuario</button>
+                            <button onClick={handleEliminarUsuario}  className="mx-5">Eliminar usuario</button>
                         </div>
                     </div>
                 </div>
