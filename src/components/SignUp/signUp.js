@@ -27,20 +27,18 @@ function SignUp() {
   }
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log("contraseña", contraseña)
-    console.log("confirmar", confirmar)
-    if (true) {
+    if (contraseña === confirmar && tipoUsuario !== "" && nombre !== "" && apellido !== "" && nombreUsuario !== "" && contraseña !== "" && confirmar !== "") {
       setdatosCorrectos(true)
       var URL = "http://localhost:8080/auth/register"
       var data = {
-        "usuario":
-        {
-          "tipoUsuario": tipoUsuario,
-          "nombre": nombre,
-          "apellido": apellido,
-        },
         "username": nombreUsuario,
         "password": contraseña,
+        "tipoUsuario": tipoUsuario,
+        "nombre": nombre,
+        "apellido": apellido,
+        "direccionEdificio": direccionEdificio,
+        "pisoDepartamento": piso,
+        "unidadDepartamento": departamento
       }
       console.log(data)
       fetch(URL, {
@@ -50,15 +48,23 @@ function SignUp() {
         method: "POST",
         body: JSON.stringify(data)
         
-      });
+      })
+      .then(response => 
+        {
+          if(response.status === 206){
+            alert("Usuario creado, pero el departamento no existe o ya tiene dueño/inquilino")
+          }
+          else if (response.status === 406){
+              alert("Nombre de usuario no disponible")
+              throw new Error("")
+          }
+        })
+        .catch(error => console.log("Error: ", error))
     }
-    else { setdatosCorrectos(false); }
-    console.log(datosCorrectos)
-    if (datosCorrectos) {
-      console.log("aaaaaaaaaaaaa")
-
-
-    }
+    
+    else { setdatosCorrectos(false);
+     alert("No se ha podido crear el usuario")}
+    
   }
 
 
@@ -117,11 +123,6 @@ function SignUp() {
               <label for="tipoUsuario" class="col-sm-2 col-form-label">Tipo de usuario</label>
 
               <div class="col-sm-10">
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="tipoUsuario" id="tipoUsuario1" value="ADMIN" onChange={handleTipoUsuario} />
-                  <label class="form-check-label" for="tipoUsuario1">Admin</label>
-                </div>
-
                 <div class="form-check">
                   <input class="form-check-input" type="radio" name="tipoUsuario" id="tipoUsuario2" value="DUENIO" onChange={handleTipoUsuario} />
                   <label class="form-check-label" for="tipoUsuario2">Dueño</label>
@@ -207,8 +208,7 @@ function SignUp() {
                 <label for="Confirmar" class="col-sm-2 col-form-label">Contraseña</label>
                 <div class="col-sm-10">
                   <input type="password" class="form-control" id="Confirmar" placeholder="Ingrese la contraseña aquí"
-                    onChange={handleContraseñaChange} value={contraseña} /
-                  >
+                    onChange={handleContraseñaChange} value={contraseña} />
                 </div>
               </div>
 
@@ -218,8 +218,7 @@ function SignUp() {
                 <label for="Confirmar" class="col-sm-2 col-form-label">Confirmar</label>
                 <div class="col-sm-10">
                   <input type="password" class="form-control" id="Confirmar" placeholder="Ingrese nuevamente la contraseña aquí"
-                    onChange={handleconfirmarChange} value={confirmar} /
-                  >
+                    onChange={handleconfirmarChange} value={confirmar} />
                 </div>
               </div>
 

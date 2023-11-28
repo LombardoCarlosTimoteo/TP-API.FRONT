@@ -11,7 +11,8 @@ export const MyProvider = ({ children }) => {
         usuarioID:"",
         piso:"",
         departamento:"",
-        direccionEdificio:""
+        direccionEdificio:"",
+        habilitadoReclamos:""
     });
     const [datosCorrectos, setdatosCorrectos] = useState("");
 

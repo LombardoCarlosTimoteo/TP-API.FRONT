@@ -4,6 +4,7 @@ import { useContext } from "react";
 import MyContext from "../ReactContext/myContext";
 import edificiosData from './edificios.json';
 import { useEffect } from 'react';
+import { Alert } from "bootstrap";
 
 function ConsultarDepartamentos() {
     const [piso, setPiso] = useState("")
@@ -19,7 +20,7 @@ function ConsultarDepartamentos() {
     const [departamentoBuscado, setDepartamentoBuscado] = useState([])
     const [idDepartamento, setidDepartamento] = useState([])
 
-    
+
 
     const [pisoNuevo, setpisoNuevo] = useState("")
     const [departamentoNuevo, setdepartamentoNuevo] = useState("")
@@ -40,7 +41,7 @@ function ConsultarDepartamentos() {
 
     const handleRealizarCambios = (event) => {
         event.preventDefault();
-        
+
         if (estaAlquiladoNuevo === "NO") {
             setnombreUsuarioInquilinoNuevo(null)
         }
@@ -65,20 +66,29 @@ function ConsultarDepartamentos() {
             })
                 .then(response => {
                     if (!response.ok) {
+                        alert("No existe el usuario de inquilino o de dueño")
                         throw new Error("No se pudo hacer el PUT")
                     }
                     return response.json()
                 })
                 .then(response => {
+
+
                     alert("Se ha modificado el departamento")
-                    if (nombreUsuarioDueñoNuevo !=="")setnombreUsuarioDueño(nombreUsuarioDueñoNuevo)
-                    if (estaAlquiladoNuevo==="SI"){ 
+                    if (nombreUsuarioDueñoNuevo !== "") setnombreUsuarioDueño(nombreUsuarioDueñoNuevo)
+                    if (estaAlquiladoNuevo === "SI") {
                         setestaAlquilado(estaAlquiladoNuevo)
-                        if (nombreUsuarioInquilinoNuevo !=="")setnombreUsuarioInquilino(nombreUsuarioInquilinoNuevo)
+                        setestaAlquiladoNuevo("")
+                        if (nombreUsuarioInquilinoNuevo !== "") setnombreUsuarioInquilino(nombreUsuarioInquilinoNuevo)
                     }
+                    setnombreUsuarioDueñoNuevo("")
+                    setnombreUsuarioInquilinoNuevo("")
+                        setestaAlquiladoNuevo("")
+
+                    
                 })
                 .catch(error => console.log("Error: ", error))
-            
+
         }
         else alert("No tienes permisos de administrador")
         setnombreUsuarioDueñoNuevo("")
@@ -158,12 +168,12 @@ function ConsultarDepartamentos() {
     const handleDepartamento = (event) => {
         setDepartamento(event.target.value)
     }
-    
+
     const handleBuscarDepartamento = (event) => {
         event.preventDefault();
         var duenioId
         var inquilinoId
-        
+
 
         if (userData.tipoUsuario === "ADMIN") {
             var URL = `http://localhost:8080/api/departamentos/${direccionEdificio}/${piso}/${departamento}`
@@ -178,6 +188,14 @@ function ConsultarDepartamentos() {
             })
                 .then(response => {
                     if (!response.ok) {
+                        setnombreUsuarioDueño("")
+                        setDireccionEdificio("")
+                        setPiso("")
+                        setDepartamento("")
+                        setnombreUsuarioDueño("")
+                        setnombreUsuarioInquilino("")
+                        setestaAlquilado("No existe")
+                        alert("no existe el departamento")
                         throw new Error("No se pudo hacer el GET")
                     }
                     return response.json()
@@ -186,58 +204,58 @@ function ConsultarDepartamentos() {
                     duenioId = response.duenioId
                     inquilinoId = response.inquilinoId
                     setidDepartamento(response.id)
-                }) 
-                .then(response => { //buscar dueño
-                var URL = `http://localhost:8080/auth/userLogin/id/${duenioId}`
-                var token = `Bearer ${userData.token}`
-                fetch(URL, {
-                    headers: new Headers({
-                        'Authorization': token,
-
-                    }),
-                    method: "GET"
                 })
-                    .then(response => {
-                        if (!response.ok) {
-                            setnombreUsuarioDueño("NO APLICA")
-                            throw new Error("No se pudo hacer el GET")
-                        }
-                        return response.json()
+                .then(response => { //buscar dueño
+                    var URL = `http://localhost:8080/auth/userLogin/id/${duenioId}`
+                    var token = `Bearer ${userData.token}`
+                    fetch(URL, {
+                        headers: new Headers({
+                            'Authorization': token,
+
+                        }),
+                        method: "GET"
                     })
-                    .then(response => {
-                        setnombreUsuarioDueño(response.username)
-                        
-                    })
-                    .catch(error => console.log("Error: ", error))
+                        .then(response => {
+                            if (!response.ok) {
+
+                                throw new Error("No se pudo hacer el GET")
+                            }
+                            return response.json()
+                        })
+                        .then(response => {
+                            setnombreUsuarioDueño(response.username)
+
+                        })
+                        .catch(error => console.log("Error: ", error))
                 })
                 .catch(error => console.log("Error: ", error))
-                
-                
-                .then(response => {//buscar inquilino
-                    
-                    var URL = `http://localhost:8080/auth/userLogin/id/${inquilinoId}`
-                    fetch(URL, {    
-                    headers: new Headers({
-                        'Authorization': token,
 
-                    }),
-                    method: "GET"
+
+                .then(response => {//buscar inquilino
+
+                    var URL = `http://localhost:8080/auth/userLogin/id/${inquilinoId}`
+                    fetch(URL, {
+                        headers: new Headers({
+                            'Authorization': token,
+
+                        }),
+                        method: "GET"
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                setestaAlquilado("")
+                                setnombreUsuarioInquilino("NO APLICA")
+                                throw new Error("No se pudo hacer el GET")
+                            }
+                            return response.json()
+                        })
+                        .then(response => {
+                            if (inquilinoId !== null) setestaAlquilado("SI")
+                            else { setestaAlquilado("NO") }
+                            setnombreUsuarioInquilino(response.username)
+                        })
+                        .catch(error => console.log("Error: ", error))
                 })
-                    .then(response => {
-                        if (!response.ok) {
-                            setestaAlquilado("NO")
-                            setnombreUsuarioInquilino("NO APLICA")
-                            throw new Error("No se pudo hacer el GET")
-                        }
-                        return response.json()
-                    })
-                    .then(response => {
-                        if (inquilinoId !== null) setestaAlquilado("SI")
-                        else{setestaAlquilado("NO")}
-                        setnombreUsuarioInquilino(response.username)
-                    })
-                    .catch(error => console.log("Error: ", error))
-            })
         }
     }
 
@@ -271,7 +289,7 @@ function ConsultarDepartamentos() {
                 <div class="form-group row">
                     <label for="Piso" class="col-sm-2 col-form-label">Piso</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" id="Piso" aria-describedby="Piso"
+                        <input type="text" class="form-control" id="Piso" aria-describedby="Piso" placeholder="Ingrese un piso" maxLength="1"
                             value={piso}
                             onChange={handlePiso}
                         />
@@ -283,7 +301,7 @@ function ConsultarDepartamentos() {
                 <div class="form-group row">
                     <label for="Piso" class="col-sm-2 col-form-label">Departamento</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" id="Piso" aria-describedby="Piso"
+                        <input type="text" class="form-control" id="Piso" aria-describedby="Piso" placeholder="Ingrese una unidad" maxLength="1"
                             value={departamento}
                             onChange={handleDepartamento}
                         />

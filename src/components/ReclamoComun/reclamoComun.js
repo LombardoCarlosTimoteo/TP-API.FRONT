@@ -41,8 +41,14 @@ function ReclamoComun() {
     const handleSubmit = async (event) => {
       event.preventDefault();
       
-      if(lugarComun==="" || descripcion === "") 
-        	alert("No has completado todos los campos"); 
+      if (userData.nombre_usuario === ""  || userData.habilitadoReclamos == false || userData.tipoUsuario === "ADMIN") {
+        alert("No puedes hacer reclamos");
+        setDescripcion("")
+        setLugarComun("")
+        setimagenesSeleccionadas("")
+      }
+      else if(lugarComun==="" || descripcion === "") 
+        	alert("No has completado todos los campos");
       else {
         try {
           var URL = "http://localhost:8080/api/reclamos";
@@ -53,13 +59,12 @@ function ReclamoComun() {
             "tipoReclamo": "COMUN",
             "estadoReclamo": "NUEVO",
             "usuarioId": userData.usuarioID
-        
           };
     
           var response = await fetch(URL, {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
               Authorization: `Bearer ${userData.token}`,
             },
             body: JSON.stringify(data),
@@ -72,6 +77,30 @@ function ReclamoComun() {
           setnroReclamo(responseData.id);
           setdatosCorrectos(true);
           console.log("responseData",responseData)
+/* 
+          var imagenURL = "http://localhost:8080/api/imagenes"
+          var token = `Bearer ${userData.token}`
+          var data = 
+          {
+              "imagenes" : imagenesSeleccionadas
+          }
+          fetch(imagenURL, 
+            {
+              headers:
+              {
+                Authorization: token,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(data),
+              method: "POST"
+            })
+            .then(response => 
+              {
+                if (!response.ok) {
+                  throw new Error("No se pudo hacer el GET")
+              }
+              return response.json
+              }) */
           
         } catch (error) {
           console.error("Error:", error);

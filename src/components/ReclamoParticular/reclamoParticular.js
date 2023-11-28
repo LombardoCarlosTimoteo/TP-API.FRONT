@@ -42,9 +42,9 @@ function ReclamoParticular() {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        if (userData.nombre_usuario === "") {
-          alert("Debes iniciar sesión");
-        } else {
+        if (userData.nombre_usuario == ""  || userData.habilitadoReclamos == false)
+          alert("No puedes hacer reclamos")
+        else if (userData.tipoUsuario === "INQUILINO"){
           try {
             var URL = "http://localhost:8080/api/reclamos";
             var data = {
@@ -79,7 +79,68 @@ function ReclamoParticular() {
             console.error("Error:", error);
           }
         }
-      };
+
+        else if(userData.tipoUsuario === "DUENIO"){
+            //chequear que su depto no tenga inquilino
+            var piso_dueño = userData.piso
+            var departamento_dueño = userData.departamento
+            var direccionEdificio_dueño = userData.direccionEdificio
+            
+            
+            var URL = `http://localhost:8080/api/departamentos/${direccionEdificio_dueño}/${piso_dueño}/${departamento_dueño}`
+            var token = `Bearer ${userData.token}`
+            console.log(token)
+            fetch(URL, {
+                headers: new Headers({
+                    'Authorization': token,
+                }),
+                method: "GET"
+            }).then(response => response.json())
+            .then(response => {
+                if (response.inquilino === null){
+                    try {
+                        var URL = "http://localhost:8080/api/reclamos";
+                        var data = {
+                          
+                          "direccionEdificio": userData.direccionEdificio, 
+                          "unidadDepartamento": userData.departamento,
+                          "pisoDepartamento": userData.piso,
+                          "descripcion": descripcion,
+                          //"imagenes": imagenesSeleccionadas
+                          "tipoReclamo": "PARTICULAR",
+                          "estadoReclamo": "NUEVO",
+                          "usuarioId": userData.usuarioID
+                        };
+                  
+                        var response =  fetch(URL, {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${userData.token}`,
+                          },
+                          body: JSON.stringify(data),
+                        });
+                  
+                        var responseData =  response.json();
+                        console.log("descripcion", descripcion);
+                        const nroR = response.id
+                        setnroReclamo(nroR);
+                        setdatosCorrectos(true);
+              
+                        
+                      } catch (error) {
+                        console.error("Error:", error);
+                      }
+                }
+                else{
+                    alert("No puedes realizar reclamos")
+                }
+            })
+        } 
+        else{
+            alert("No puedes hacer reclamos")
+        }
+    }
 
     const handledireccionEdificio = (event) => {
         setDireccionEdificio(event.target.value)
@@ -110,6 +171,10 @@ function ReclamoParticular() {
                 (
                     <form class="mx-auto" onSubmit={handleSubmit}>
                         <h1>Formulario reclamo particular</h1>
+
+                        <h1>"{userData.departamento}"</h1>
+                        <h1>"{userData.direccionEdificio}"</h1>
+                        <h1>"{userData.piso}"</h1>
 
                         <p></p>
 
