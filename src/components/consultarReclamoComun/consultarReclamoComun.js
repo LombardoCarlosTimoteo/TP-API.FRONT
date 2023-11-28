@@ -174,7 +174,7 @@ function ConsultarReclamoComun() {
                 })
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error("No se pudo hacer el GET")
+                            throw new Error("No se pudo hacer el GET33333333333")
                         }
                         return response.json()
                     })
@@ -196,7 +196,7 @@ function ConsultarReclamoComun() {
             })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error("No se pudo hacer el GET")
+                        throw new Error("No se pudo hacer el GET2222222222222222222")
                     }
                     return response.json()
                 })
@@ -207,6 +207,7 @@ function ConsultarReclamoComun() {
                 })
                 .then(response => {
                     var listaImagenesBlob = []
+                    if (ImagenesIds.length !== 0){
                     for (let i = 0; i < ImagenesIds.length; i++) {
                         fetch(`http://localhost:8080/api/imagen/${ImagenesIds[i]}`, {
                             headers: new Headers({
@@ -216,7 +217,7 @@ function ConsultarReclamoComun() {
                         })
                             .then(response => {
                                 if (!response.ok) {
-                                    throw new Error("No se pudo hacer el GET")
+                                    throw new Error("No se pudo hacer el GET1111111111111111")
                                 }
                                 return response.blob()
                             })
@@ -225,6 +226,7 @@ function ConsultarReclamoComun() {
                             })
                     }
                     setimagenesBlob(listaImagenesBlob)
+                }
                 })
 
         }
@@ -400,7 +402,7 @@ function ConsultarReclamoComun() {
                     })
                         .then(response => {
                             if (!response.ok) {
-                                throw new Error("No se pudo hacer el GET")
+                                throw new Error("No se pudo hacer el GET222222222222222222")
                             }
                             return response.json()
                         })
@@ -421,7 +423,7 @@ function ConsultarReclamoComun() {
                             })
                                 .then(response => {
                                     if (!response.ok) {
-                                        throw new Error("No se pudo hacer el GET")
+                                        throw new Error("No se pudo hacer el GETOOOOOOOOOOOO")
                                     }
                                     return response.json()
                                 })
@@ -430,6 +432,8 @@ function ConsultarReclamoComun() {
                                 })
                                 .then(response => {
                                     var listaImagenesBlob = []
+                                    if (ImagenesIds.length !== 0){
+                                    
                                     for (let i = 0; i < ImagenesIds.length; i++) {
                                         fetch(`http://localhost:8080/api/imagen/${ImagenesIds[i]}`, {
                                             headers: new Headers({
@@ -439,7 +443,7 @@ function ConsultarReclamoComun() {
                                         })
                                             .then(response => {
                                                 if (!response.ok) {
-                                                    throw new Error("No se pudo hacer el GET")
+                                                    throw new Error("No se pudo hacer el GET333333333333333333333333")
                                                 }
                                                 return response.blob()
                                             })
@@ -451,7 +455,7 @@ function ConsultarReclamoComun() {
                                         }
                                         setimagenesBlob(listaImagenesBlob)
                                         
-                                    
+                                    }
                                 })
                                 
                         })

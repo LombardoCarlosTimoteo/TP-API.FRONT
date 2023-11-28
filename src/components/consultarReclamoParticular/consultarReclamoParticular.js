@@ -29,6 +29,7 @@ function ConsultarReclamoParticular() {
     const [nuevoEstadoSeleccionado, setNuevoEstadoSeleccionado,] = useState([]);
     const reclamoSeleccionado = "";
     const estadoNuevoSeleccionado = "";
+    const [imagenesBlob, setimagenesBlob] = useState([]);
 
     //si es admin, cargar todos los reclamos en listaReclamosComunes
     //si no, cargar aquellos reclamos que correspondan al edificio del usuario en listaReclamosComunes tambien
@@ -162,10 +163,10 @@ function ConsultarReclamoParticular() {
             setdireccionEdificio(reclamoEncontrado.direccionEdificio)
             //imagenes
             const idAutor = reclamoEncontrado.usuarioId
-            var URL = `http://localhost:8080/api/usuarios/${idAutor}`
+            var URLfetch = `http://localhost:8080/api/usuarios/${idAutor}`
             var token = `Bearer ${userData.token}`
             if (idAutor != 0) {
-                fetch(URL, {
+                fetch(URLfetch, {
                     headers: new Headers({
                         'Authorization': token,
                     }),
@@ -184,9 +185,56 @@ function ConsultarReclamoParticular() {
                     })
 
             }
+            var ImagenesIds
+            var URLfetch = `http://localhost:8080/api/imagen/ids/${reclamoEncontrado.id}`
+            var token = `Bearer ${userData.token}`
+            fetch(URLfetch, {
+                headers: new Headers({
+                    'Authorization': token,
+                }),
+                method: "GET"
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("No se pudo hacer el GET2222222222222222222")
+                    }
+                    return response.json()
+                })
+                .then(response => {
+                    ImagenesIds = response
+                    console.log("ImagenesIds", ImagenesIds)
+                    console.log("ImagenesIds.length", ImagenesIds.length)
+                })
+                .then(response => {
+                    var listaImagenesBlob = []
+                    if (ImagenesIds.length !== 0){
+                    for (let i = 0; i < ImagenesIds.length; i++) {
+                        fetch(`http://localhost:8080/api/imagen/${ImagenesIds[i]}`, {
+                            headers: new Headers({
+                                'Authorization': token,
+                            }),
+                            method: "GET"
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error("No se pudo hacer el GET1111111111111111")
+                                }
+                                return response.blob()
+                            })
+                            .then(response => {
+                                listaImagenesBlob.push(URL.createObjectURL(response))
+                            })
+                    }
+                    setimagenesBlob(listaImagenesBlob)
+                }
+                
+                })
+                .catch(error => console.log("Error: ", error))
 
         }
-    }
+
+        }
+    
 
     const handleNuevoEstadoChange = (event) => {
         setnuevoEstadoReclamo(event.target.value)
@@ -243,6 +291,7 @@ function ConsultarReclamoParticular() {
         setmedidasTomadasNueva(event.target.value)
     }
     const handleTipoBusqueda = (event) => {
+        setimagenesBlob([])
         setestadoReclamo("");
         setPiso("");
         setDescripcion("");
@@ -316,8 +365,11 @@ function ConsultarReclamoParticular() {
         setapellidoAutorDelReclamo("");
         setunidad("");
         setPiso("");
+        setimagenesBlob([])
+
     }
     const handleRealizarBusqueda = (event) => {
+        setimagenesBlob([])
         if (tipoBusqueda === "busquedaPorNumeroReclamo") {
             const reclamoEncontrado = listaTodosReclamos.find(reclamo => { return reclamo.id === parseInt(numeroDeReclamo, 10) && reclamo.tipoReclamo === "PARTICULAR" })
             if (reclamoEncontrado) {
@@ -330,10 +382,10 @@ function ConsultarReclamoParticular() {
                 setdireccionEdificio(reclamoEncontrado.direccionEdificio)
                 //imagenes
                 const idAutor = reclamoEncontrado.usuarioId
-                var URL = `http://localhost:8080/api/usuarios/${idAutor}`
+                var URLfetch = `http://localhost:8080/api/usuarios/${idAutor}`
                 var token = `Bearer ${userData.token}`
                 if (idAutor != 0) {
-                    fetch(URL, {
+                    fetch(URLfetch, {
                         headers: new Headers({
                             'Authorization': token,
                         }),
@@ -350,7 +402,56 @@ function ConsultarReclamoParticular() {
                             setnombreAutorDelReclamo(response.nombre)
                             setapellidoAutorDelReclamo(response.apellido)
                         })
-
+                        .then(response => {
+                            var r
+                            var ImagenesIds
+                            var URLfetch = `http://localhost:8080/api/imagen/ids/${reclamoEncontrado.id}`
+                            var token = `Bearer ${userData.token}`
+                            fetch(URLfetch, {
+                                headers: new Headers({
+                                    'Authorization': token,
+                                }),
+                                method: "GET"
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error("No se pudo hacer el GETOOOOOOOOOOOO")
+                                    }
+                                    return response.json()
+                                })
+                                .then(response => {
+                                    ImagenesIds = response
+                                })
+                                .then(response => {
+                                    var listaImagenesBlob = []
+                                    if (ImagenesIds.length !== 0){
+                                    
+                                    for (let i = 0; i < ImagenesIds.length; i++) {
+                                        fetch(`http://localhost:8080/api/imagen/${ImagenesIds[i]}`, {
+                                            headers: new Headers({
+                                                'Authorization': token,
+                                            }),
+                                            method: "GET"
+                                        })
+                                            .then(response => {
+                                                if (!response.ok) {
+                                                    throw new Error("No se pudo hacer el GET333333333333333333333333")
+                                                }
+                                                return response.blob()
+                                            })
+                                            .then(response => {
+                                                r = response
+                                                
+                                            })
+                                            .then(response => listaImagenesBlob.push(URL.createObjectURL(r)))
+                                        }
+                                        setimagenesBlob(listaImagenesBlob)
+                                        
+                                    }
+                                })
+                                .catch(error => console.log("Error: ", error))
+                                
+                        })
                 }
             }
             else {
@@ -541,7 +642,7 @@ function ConsultarReclamoParticular() {
                             <div class="custom-file">
                                 <p></p>
                                 <div>
-                                    {imagenes.map((imagen, index) => (
+                                    {imagenesBlob.map((imagen, index) => (
                                         <img key={index} src={imagen} alt={`Imagen ${index}`} width="100" />
                                     ))}
                                 </div>

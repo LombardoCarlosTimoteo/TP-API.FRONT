@@ -128,11 +128,14 @@ function ConsultarUsuarios() {
                 setnuevoDireccionEdificio("")
                 setnuevoPiso("")
                 setnuevoDepartamento("")
-                return response.json()
+                setNombre(nombre2)
+                setApellido(apellido2)
+                setUsername(username2)
+                //return response.json()
             }
             )
             .then(response => {
-                JSON.stringify(response)
+                //JSON.stringify(response)
                 console.log(response)
             })
             .then(response => {
@@ -156,6 +159,7 @@ function ConsultarUsuarios() {
                         JSON.stringify(response)
                         const r=response
                         setListaUsuarios(r)
+                        console.log("r",r)
                     })
                     .catch(error => console.log("Error: ", error))
                     
@@ -228,7 +232,6 @@ function ConsultarUsuarios() {
                 })
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error("No se pudo hacer el GET")
                             alert("Usuario no encontrado")
 
                             setTipoUsuario("")
@@ -238,6 +241,7 @@ function ConsultarUsuarios() {
                             setNombre("")
                             setApellido("")
                             setidUsuario("")
+                            throw new Error("No se pudo hacer el GET")
                         }
 
                         alert("Usuario eliminado correctamente")

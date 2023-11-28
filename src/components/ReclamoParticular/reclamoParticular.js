@@ -3,6 +3,7 @@ import './formReclamoParticular.css';
 import { useContext } from "react";
 import MyContext from "../ReactContext/myContext";
 import { useEffect } from "react";
+
 function ReclamoParticular() {
     const [descripcion, setDescripcion] = useState("")
     const [piso, setPiso] = useState("")
@@ -12,7 +13,9 @@ function ReclamoParticular() {
     const [imagenesSeleccionadas, setimagenesSeleccionadas] = useState([]);
     const { userData, setUserData } = useContext(MyContext)
     const [nroReclamo,setnroReclamo] = useState("")
-    
+    const [imagenesBlob, setimagenesBlob] = useState([]);
+    const [imagenesSeleccionadasBlob, setimagenesSeleccionadasBlob] = useState([]);
+
     useEffect(() => {
         setDireccionEdificio(userData.idEdificio);
         setDepartamento(userData.departamento);
@@ -32,12 +35,18 @@ function ReclamoParticular() {
     const handleFileChange = (event) => {
         const archivos = event.target.files;
         const imagenes = [];
+        const crudos = [];
+
         for (let i = 0; i < archivos.length; i++) {
-            imagenes.push(URL.createObjectURL(archivos[i]));
+            var imagen = (URL.createObjectURL(archivos[i]));
+            var crudo= archivos[i]
+            imagenes.push(imagen);
+            crudos.push(crudo)
             console.log("va")
             console.log(archivos[i])
         }
-        setimagenesSeleccionadas(imagenes);
+        setimagenesSeleccionadas(crudos);
+        setimagenesSeleccionadasBlob(imagenes)
     };
 
     const handleSubmit = async (event) => {
@@ -73,6 +82,22 @@ function ReclamoParticular() {
       
             setnroReclamo(responseData.id);
             setdatosCorrectos(true);
+
+            var URL = `http://localhost:8080/api/imagen/${responseData.id}`
+            for(let i = 0; i < imagenesSeleccionadas.length ; i++)
+            
+            {
+              var formData = new FormData();
+              formData.append("archivo", imagenesSeleccionadas[i]);
+            
+              fetch(URL, {
+                method: 'POST',
+                headers: {
+                  Authorization: `Bearer ${userData.token}`
+                },
+                body: formData,
+              });
+            }
   
             
           } catch (error) {
@@ -172,9 +197,6 @@ function ReclamoParticular() {
                     <form class="mx-auto" onSubmit={handleSubmit}>
                         <h1>Formulario reclamo particular</h1>
 
-                        <h1>"{userData.departamento}"</h1>
-                        <h1>"{userData.direccionEdificio}"</h1>
-                        <h1>"{userData.piso}"</h1>
 
                         <p></p>
 
@@ -226,7 +248,7 @@ function ReclamoParticular() {
                                     <input type="file" class="custom-file-input" id="adjuntarImagenes" lang="es" multiple onChange={handleFileChange} />
                                     <p></p>
                                     <div>
-                                        {imagenesSeleccionadas.map((imagen, index) => (
+                                        {imagenesSeleccionadasBlob.map((imagen, index) => (
                                             <img key={index} src={imagen} alt={`Imagen ${index}`} width="100" />
                                         ))}
                                     </div>
