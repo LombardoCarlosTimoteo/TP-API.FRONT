@@ -404,6 +404,7 @@ function ConsultarReclamoParticular() {
                         })
                         .then(response => {
                             var r
+                            var listaImagenesBlob = []
                             var ImagenesIds
                             var URLfetch = `http://localhost:8080/api/imagen/ids/${reclamoEncontrado.id}`
                             var token = `Bearer ${userData.token}`

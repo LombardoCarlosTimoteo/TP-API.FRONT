@@ -371,15 +371,16 @@ function ConsultarReclamoComun() {
         setmedidasTomadasNueva("");
         setnombreAutorDelReclamo("");
         setapellidoAutorDelReclamo("");
+        setimagenesBlob([])
 
 
     }
 
     const handleRealizarBusqueda = (event) => {
-        event.preventDefault(); 
+        setimagenesBlob([])
         if (tipoBusqueda === "busquedaPorNumeroReclamo") {
             //Que devuelva el reclamo en base al id
-            setdireccionEdificio("");
+            //setdireccionEdificio("");
             const reclamoEncontrado = listaTodosReclamos.find(reclamo => { return reclamo.id === parseInt(numeroDeReclamo, 10) && reclamo.tipoReclamo === "COMUN" })
             if (reclamoEncontrado) {
                 setestadoReclamo(reclamoEncontrado.estadoReclamo);
@@ -412,6 +413,7 @@ function ConsultarReclamoComun() {
                         })
                         .then(response => {
                             var r
+                            var listaImagenesBlob = []
                             var ImagenesIds
                             var URLfetch = `http://localhost:8080/api/imagen/ids/${reclamoEncontrado.id}`
                             var token = `Bearer ${userData.token}`
@@ -431,7 +433,7 @@ function ConsultarReclamoComun() {
                                     ImagenesIds = response
                                 })
                                 .then(response => {
-                                    var listaImagenesBlob = []
+                                    
                                     if (ImagenesIds.length !== 0){
                                     
                                     for (let i = 0; i < ImagenesIds.length; i++) {
@@ -457,6 +459,8 @@ function ConsultarReclamoComun() {
                                         
                                     }
                                 })
+                                .catch(error => console.log("Error: ", error))
+
                                 
                         })
 
