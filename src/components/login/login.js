@@ -15,7 +15,7 @@ function Login() {
     
     const handleSubmit = async (event) => {
         event.preventDefault();
-        const habilitado = false;
+        var habilitado = false;
 
 
         try {
@@ -63,10 +63,32 @@ function Login() {
 
     
             if (!contextResponse.ok) {
+                habilitado = false
+                setdatosCorrectos(true);
+                setUserData({
+                    ...userData,
+                    tipoUsuario: userData.tipoUsuario,
+                    usuarioID: userID,
+                    nombre_usuario: userData.username,
+                    token: token,
+                    habilitadoReclamos: habilitado
+                });
                 throw new Error("Datos del contexto inválidos");
             }
+            else{
+                habilitado = true
+            }
+
+            let contextData;
+
+
+            if (contextResponse.status === 200) {
+                contextData = await contextResponse.json();
+              } else {
+                contextData = {};
+              }
     
-            const contextData = await contextResponse.json();
+            //const contextData = await contextResponse.json();
 
             //const contextData = await contextResponse
             
@@ -84,8 +106,9 @@ function Login() {
             });
             setdatosCorrectos(true);
         } catch (error) {
-            console.error("Error en el manejo de las promesas:", error);
-
+            //console.error("Error en el manejo de las promesas:", error);
+            
+            console.log(error)
 
 
             // Manejar el error según tus necesidades
