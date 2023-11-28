@@ -9,6 +9,7 @@ function ConsultarReclamoComun() {
     const [descripcion, setDescripcion] = useState("")
     const [datosCorrectos, setdatosCorrectos] = useState(false);
     const [imagenes, setimagenes] = useState([]);
+    const [imagenesBlob, setimagenesBlob] = useState([]);
     const { userData, setUserData } = useContext(MyContext)
     const [lugarComun, setLugarComun] = useState("")
     const [estadoReclamo, setestadoReclamo] = useState("")
@@ -111,6 +112,8 @@ function ConsultarReclamoComun() {
 
                 setestadoReclamo(nuevoEstadoReclamo)
                 setmedidasTomadasActual(medidasTomadasNueva)
+
+
             }
             //if (medidasTomadasNueva !== "") setmedidasTomadasActual(medidasTomadasNueva)
         }
@@ -160,10 +163,10 @@ function ConsultarReclamoComun() {
             setdireccionEdificio(reclamoEncontrado.direccionEdificio)
             /////ACAAAAAAAAAAAAAAAAAAA
             const idAutor = reclamoEncontrado.usuarioId
-            var URL = `http://localhost:8080/api/usuarios/${idAutor}`
+            var URLfetch = `http://localhost:8080/api/usuarios/${idAutor}`
             var token = `Bearer ${userData.token}`
             if (idAutor != 0) {
-                fetch(URL, {
+                fetch(URLfetch, {
                     headers: new Headers({
                         'Authorization': token,
                     }),
@@ -182,7 +185,54 @@ function ConsultarReclamoComun() {
 
             }
             //imagenes
+            var ImagenesIds
+            var URLfetch = `http://localhost:8080/api/imagen/ids/${reclamoEncontrado.id}`
+            var token = `Bearer ${userData.token}`
+            fetch(URLfetch, {
+                headers: new Headers({
+                    'Authorization': token,
+                }),
+                method: "GET"
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("No se pudo hacer el GET")
+                    }
+                    return response.json()
+                })
+                .then(response => {
+                    ImagenesIds = response
+                    console.log("ImagenesIds", ImagenesIds)
+                    console.log("ImagenesIds.length", ImagenesIds.length)
+                })
+                .then(response => {
+                    var listaImagenesBlob = []
+                    for (let i = 0; i < ImagenesIds.length; i++) {
+                        fetch(`http://localhost:8080/api/imagen/${ImagenesIds[i]}`, {
+                            headers: new Headers({
+                                'Authorization': token,
+                            }),
+                            method: "GET"
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error("No se pudo hacer el GET")
+                                }
+                                return response.blob()
+                            })
+                            .then(response => {
+                                listaImagenesBlob.push(URL.createObjectURL(response))
+                            })
+                    }
+                    setimagenesBlob(listaImagenesBlob)
+                })
+
         }
+
+
+
+
+
     }
 
     const handleNuevoEstadoChange = (event) => {
@@ -239,8 +289,10 @@ function ConsultarReclamoComun() {
     const handleMedidasTomadasNueva = (event) => {
         setmedidasTomadasNueva(event.target.value)
     }
+    
 
     const handleTipoBusqueda = (event) => {
+        setimagenesBlob([])
         setdireccionEdificio("");
         setestadoReclamo("");
         setLugarComun("");
@@ -322,6 +374,7 @@ function ConsultarReclamoComun() {
     }
 
     const handleRealizarBusqueda = (event) => {
+        event.preventDefault(); 
         if (tipoBusqueda === "busquedaPorNumeroReclamo") {
             //Que devuelva el reclamo en base al id
             setdireccionEdificio("");
@@ -336,10 +389,10 @@ function ConsultarReclamoComun() {
                 setdireccionEdificio(reclamoEncontrado.direccionEdificio)
 
                 const idAutor = reclamoEncontrado.usuarioId
-                var URL = `http://localhost:8080/api/usuarios/${idAutor}`
+                var URLfetch = `http://localhost:8080/api/usuarios/${idAutor}`
                 var token = `Bearer ${userData.token}`
                 if (idAutor != 0) {
-                    fetch(URL, {
+                    fetch(URLfetch, {
                         headers: new Headers({
                             'Authorization': token,
                         }),
@@ -354,6 +407,53 @@ function ConsultarReclamoComun() {
                         .then(response => {
                             setnombreAutorDelReclamo(response.nombre)
                             setapellidoAutorDelReclamo(response.apellido)
+                        })
+                        .then(response => {
+                            var r
+                            var ImagenesIds
+                            var URLfetch = `http://localhost:8080/api/imagen/ids/${reclamoEncontrado.id}`
+                            var token = `Bearer ${userData.token}`
+                            fetch(URLfetch, {
+                                headers: new Headers({
+                                    'Authorization': token,
+                                }),
+                                method: "GET"
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error("No se pudo hacer el GET")
+                                    }
+                                    return response.json()
+                                })
+                                .then(response => {
+                                    ImagenesIds = response
+                                })
+                                .then(response => {
+                                    var listaImagenesBlob = []
+                                    for (let i = 0; i < ImagenesIds.length; i++) {
+                                        fetch(`http://localhost:8080/api/imagen/${ImagenesIds[i]}`, {
+                                            headers: new Headers({
+                                                'Authorization': token,
+                                            }),
+                                            method: "GET"
+                                        })
+                                            .then(response => {
+                                                if (!response.ok) {
+                                                    throw new Error("No se pudo hacer el GET")
+                                                }
+                                                return response.blob()
+                                            })
+                                            .then(response => {
+                                                r = response
+                                                
+                                            })
+                                            .then(response => listaImagenesBlob.push(URL.createObjectURL(r)))
+                                        }
+                                        setimagenesBlob(listaImagenesBlob)
+                                        
+                                    
+                                })
+                                
                         })
 
                 }
@@ -382,7 +482,7 @@ function ConsultarReclamoComun() {
         else {
 
             const listaReclamosPorFiltro = listaReclamosComunes.filter(reclamo => reclamo.estado === filtrarPorEstado);
-        }
+        } 
     }
 
 
@@ -477,7 +577,7 @@ function ConsultarReclamoComun() {
                         <label for="nombre_usuario" class="col-sm-2 col-form-label">ID Reclamo común</label>
                         <div class="col-sm-10">
                             <input
-                                type="text" class="form-control" id="estadoReclamo" aria-describedby="estadoReclamo" placeholder="" value={idReclamo} readonly
+                                type="text" class="form-control" id="estadoReclamo" aria-describedby="estadoReclamo" placeholder="" value={idReclamo}  readonly
                             />
                         </div>
                     </div>
@@ -546,7 +646,7 @@ function ConsultarReclamoComun() {
                             <div class="custom-file">
                                 <p></p>
                                 <div>
-                                    {imagenes.map((imagen, index) => (
+                                    {imagenesBlob.map((imagen, index) => (
                                         <img key={index} src={imagen} alt={`Imagen ${index}`} width="100" />
                                     ))}
                                 </div>

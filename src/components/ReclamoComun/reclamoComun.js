@@ -3,13 +3,13 @@ import './formReclamoComun.css';
 import { useContext } from "react";
 import MyContext from "../ReactContext/myContext";
 import { useEffect } from "react";
-
 function ReclamoComun() {
   const [direccionEdificio, setDireccionEdificio] = useState('')
   const [lugarComun, setLugarComun] = useState("")
   const [descripcion, setDescripcion] = useState("")
   const [datosCorrectos, setdatosCorrectos] = useState(false);
   const [imagenesSeleccionadas, setimagenesSeleccionadas] = useState([]);
+  const [imagenesSeleccionadasBlob, setimagenesSeleccionadasBlob] = useState([]);
   const { userData, setUserData } = useContext(MyContext)
   const [nroReclamo,setnroReclamo] = useState("")
 
@@ -27,14 +27,15 @@ function ReclamoComun() {
   const handleFileChange = (event) => {
     const archivos = event.target.files;
     const imagenes = [];
+    const crudos = [];
     for (let i = 0; i < archivos.length; i++) {
       var imagen = (URL.createObjectURL(archivos[i]));
-      console.log("archivos[i]",archivos[i])
-
-      imagenes.push(URL.createObjectURL(archivos[i]));
+      var crudo= archivos[i]
+      imagenes.push(imagen);
+      crudos.push(crudo)
     }
-    setimagenesSeleccionadas(imagenes);
-    console.log("imagenesSeleccionadas",imagenesSeleccionadas)
+    setimagenesSeleccionadas(crudos);
+    setimagenesSeleccionadasBlob(imagenes)
   };
 
 
@@ -72,36 +73,26 @@ function ReclamoComun() {
     
           var responseData = await response.json();
           
-          console.log("descripcion", descripcion);
     
           setnroReclamo(responseData.id);
           setdatosCorrectos(true);
-          console.log("responseData",responseData)
-/* 
-          var imagenURL = "http://localhost:8080/api/imagenes"
-          var token = `Bearer ${userData.token}`
-          var data = 
-          {
-              "imagenes" : imagenesSeleccionadas
-          }
-          fetch(imagenURL, 
-            {
-              headers:
-              {
-                Authorization: token,
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify(data),
-              method: "POST"
-            })
-            .then(response => 
-              {
-                if (!response.ok) {
-                  throw new Error("No se pudo hacer el GET")
-              }
-              return response.json
-              }) */
           
+          var URL = `http://localhost:8080/api/imagen/${responseData.id}`
+          for(let i = 0; i < imagenesSeleccionadas.length ; i++)
+          
+          {
+            var formData = new FormData();
+            formData.append("archivo", imagenesSeleccionadas[i]);
+          
+            fetch(URL, {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${userData.token}`
+              },
+              body: formData,
+            });
+          }
+
         } catch (error) {
           console.error("Error:", error);
         }
@@ -188,7 +179,7 @@ function ReclamoComun() {
                 <input type="file" class="custom-file-input" id="adjuntarImagenes" lang="es" multiple onChange={handleFileChange} />
                 <p></p>
                 <div>
-                  {imagenesSeleccionadas.map((imagen, index) => (
+                  {imagenesSeleccionadasBlob.map((imagen, index) => (
                     <img key={index} src={imagen} alt={`Imagen ${index}`} width="100" />
                   ))}
                 </div>
